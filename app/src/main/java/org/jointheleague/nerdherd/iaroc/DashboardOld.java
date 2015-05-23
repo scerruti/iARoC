@@ -20,6 +20,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.jointheleague.nerdherd.sensors.UltraSonicSensors;
 import org.wintrisstech.irobot.ioio.IRobotCreateInterface;
 import org.wintrisstech.irobot.ioio.SimpleIRobotCreate;
 
@@ -37,7 +38,7 @@ import ioio.lib.util.android.IOIOActivity;
  * 
  * <p>
  * This class assumes that there are 3 ultrasonic sensors attached to the
- * iRobot. An instance of the Dashboard class will display the readings of these
+ * iRobot. An instance of the DashboardOld class will display the readings of these
  * three sensors.
  * 
  * <p>
@@ -46,7 +47,7 @@ import ioio.lib.util.android.IOIOActivity;
  * @author Erik Colban
  * 
  */
-public class Dashboard extends IOIOActivity implements
+public class DashboardOld extends IOIOActivity implements
 		TextToSpeech.OnInitListener, SensorEventListener {
 
 	/**
@@ -244,7 +245,9 @@ public class Dashboard extends IOIOActivity implements
 
 	class Looper extends BaseIOIOLooper {
 
-		@Override
+        private UltraSonicSensors uss;
+
+        @Override
 		public void setup() throws ConnectionLostException,
 				InterruptedException {
 			/*
@@ -267,18 +270,30 @@ public class Dashboard extends IOIOActivity implements
 			 * to establish connections to other peripherals, such as sensors
 			 * that are not part of the iRobot Create.
 			 */
-			mazeRunner = new Robot(ioio_, iRobotCreate, Dashboard.this);
+			mazeRunner = new Robot(ioio_, iRobotCreate, DashboardOld.this);
 			mazeRunner.initialize();
+            log("BEFORE USS");
+            Thread.sleep(1000, 0);
+            try {
+                uss = new UltraSonicSensors(this.ioio_);
+            } catch (Exception e) {
+                log(e.getMessage());
+                Thread.sleep(2000, 0);
+            }
+            log("AFTER USS");
+            Thread.sleep(1000, 0);
 		}
 
 		@Override
 		public void loop() throws ConnectionLostException, InterruptedException {
-			mazeRunner.loop();
+			mazeRunner.loop(uss);
+
 		}
 
 		@Override
 		public void disconnected() {
-			log(getString(R.string.ioio_disconnected));
+            uss.closeConnection();
+            log(getString(R.string.ioio_disconnected));
 		}
 
 		@Override
@@ -298,7 +313,7 @@ public class Dashboard extends IOIOActivity implements
 	}
 
 	/**
-	 * Writes a message to the Dashboard instance.
+	 * Writes a message to the DashboardOld instance.
 	 * 
 	 * @param msg
 	 *            the message to write

@@ -21,7 +21,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * Simplified version 140512A by Erik  Super Happy Version
  */
 public class Robot extends IRobotCreateAdapter {
-	private final Dashboard dashboard;
+	private final DashboardOld dashboard;
 	public UltraSonicSensors sonar;
 	private boolean firstPass = true;;
 	private int commandAzimuth;
@@ -35,10 +35,10 @@ public class Robot extends IRobotCreateAdapter {
 	 * @param create
 	 *            an implementation of an iRobot
 	 * @param dashboard
-	 *            the Dashboard instance that is connected to the Robot
+	 *            the DashboardOld instance that is connected to the Robot
 	 * @throws ConnectionLostException
 	 */
-	public Robot(IOIO ioio, IRobotCreateInterface create, Dashboard dashboard)
+	public Robot(IOIO ioio, IRobotCreateInterface create, DashboardOld dashboard)
 			throws ConnectionLostException {
 		super(create);
 		sonar = new UltraSonicSensors(ioio);
@@ -53,12 +53,20 @@ public class Robot extends IRobotCreateAdapter {
 	 * This method is called repeatedly
 	 * 
 	 * @throws ConnectionLostException
+     * @param uss
 	 */
-	public void loop() throws ConnectionLostException {
-		
+	public void loop(UltraSonicSensors uss) throws ConnectionLostException {
+        dashboard.log("SENSING");
 		SystemClock.sleep(100);
-		dashboard.log(String.valueOf(dashboard.getAzimuth())+" "+ String.valueOf(dashboard.getPitch())+" "+ String.valueOf(dashboard.getRoll()));
-	}
+        try {
+            uss.read();
+        } catch (InterruptedException e) {
+            dashboard.log(e.getMessage());
+        }
+        //dashboard.log(String.valueOf(dashboard.getAzimuth())+" "+ String.valueOf(dashboard.getPitch())+" "+ String.valueOf(dashboard.getRoll()));
+        dashboard.log(String.valueOf(uss.getLeftDistance())+" "+ String.valueOf(uss.getFrontDistance())+" "+ String.valueOf(uss.getRightDistance()));
+
+    }
 
 //	public void turn(int commandAngle) throws ConnectionLostException //Doesn't work for turns through 360
 //	{
