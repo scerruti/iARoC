@@ -7,5 +7,6 @@
     <string name="wait_create">Waiting for Create to connect...</string>
     <string name="create_connected">Create connected!</string>
     <string name="ioio_disconnected">IOIO disconnected!</string>
+    <string name="ioio_incompatible">IOIO incompatible!</string>
     <string name="zero">0</string>
 </resources>
