@@ -23,6 +23,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.util.Log;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -43,6 +44,7 @@ import android.widget.TextView;
 public class Dashboard extends IOIOActivity implements
         TextToSpeech.OnInitListener, SensorEventListener {
 
+    private static final String LOGCAT_TAG = "iARoC";
     /**
      * Text view that contains all logged messages
      */
@@ -268,6 +270,8 @@ public class Dashboard extends IOIOActivity implements
      *            the message to write
      */
     public void log(final String msg) {
+        Log.i(LOGCAT_TAG, msg);
+
         runOnUiThread(new Runnable() {
 
             public void run() {
