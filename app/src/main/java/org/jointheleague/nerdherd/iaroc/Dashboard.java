@@ -114,7 +114,7 @@ public class Dashboard extends IOIOActivity implements
         mText = (TextView) findViewById(R.id.text);
         scroller = (ScrollView) findViewById(R.id.scroller);
         log(getString(R.string.wait_ioio));
-        
+
     }
 
     @Override

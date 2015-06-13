@@ -1,8 +1,6 @@
 package org.jointheleague.nerdherd.iaroc.thread.navigate.turn;
 
 import org.jointheleague.nerdherd.iaroc.Brain;
-import org.jointheleague.nerdherd.iaroc.Dashboard;
-import org.jointheleague.nerdherd.iaroc.Robot;
 
 import ioio.lib.api.exception.ConnectionLostException;
 
