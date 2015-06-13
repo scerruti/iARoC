@@ -21,7 +21,7 @@ import ioio.lib.api.exception.ConnectionLostException;
  * Simplified version 140512A by Erik  Super Happy Version
  */
 public class Robot extends IRobotCreateAdapter {
-	private final DashboardOld dashboard;
+	private final Dashboard dashboard;
 	public UltraSonicSensors sonar;
 	private boolean firstPass = true;;
 	private int commandAzimuth;
@@ -38,11 +38,12 @@ public class Robot extends IRobotCreateAdapter {
 	 *            the DashboardOld instance that is connected to the Robot
 	 * @throws ConnectionLostException
 	 */
-	public Robot(IOIO ioio, IRobotCreateInterface create, DashboardOld dashboard)
+	public Robot(IOIO ioio, IRobotCreateInterface create, Dashboard dashboard)
 			throws ConnectionLostException {
 		super(create);
 		sonar = new UltraSonicSensors(ioio);
 		this.dashboard = dashboard;
+		this.dashboard.getBrain().setRobot(this);
 	}
 
 	public void initialize() throws ConnectionLostException {

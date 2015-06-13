@@ -76,6 +76,10 @@ public class Dashboard extends IOIOActivity implements
     private double pitch;
     private double roll;
 
+    public Brain getBrain() {
+        return kalina;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
