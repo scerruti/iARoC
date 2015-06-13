@@ -24,6 +24,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -113,7 +114,7 @@ public class Dashboard extends IOIOActivity implements
         mText = (TextView) findViewById(R.id.text);
         scroller = (ScrollView) findViewById(R.id.scroller);
         log(getString(R.string.wait_ioio));
-
+        
     }
 
     @Override

@@ -12,7 +12,6 @@ public class Brain extends IRobotCreateAdapter {
     private final Dashboard dashboard;
     public UltraSonicSensors sonar;
     int theta=0;
-    Robot r = null;
 
     public Brain(IOIO ioio, IRobotCreateInterface create, Dashboard dashboard)
             throws ConnectionLostException {
@@ -21,9 +20,7 @@ public class Brain extends IRobotCreateAdapter {
         this.dashboard = dashboard;
     }
 
-    public void setRobot(Robot r) {
-        this.r = r;
-    }
+
 
     /* This method is executed when the robot first starts up. */
     public void initialize() throws ConnectionLostException {
@@ -34,10 +31,13 @@ public class Brain extends IRobotCreateAdapter {
         } catch (InterruptedException e) {
 
         }
-        TurnThread.startTurn(r, 90);
+        TurnThread.startTurn(this, 90);
 
 
 
+    }
+    public int[] computeWheelSpeed(int defaultTurnRadius, int angle) {
+        return new int[]{343,156}; // TODO implemented by Russ and Ruoya
     }
     /* This method is called repeatedly. */
     public void loop() throws ConnectionLostException {

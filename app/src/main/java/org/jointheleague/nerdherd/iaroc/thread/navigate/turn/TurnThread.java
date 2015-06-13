@@ -1,5 +1,6 @@
 package org.jointheleague.nerdherd.iaroc.thread.navigate.turn;
 
+import org.jointheleague.nerdherd.iaroc.Brain;
 import org.jointheleague.nerdherd.iaroc.Dashboard;
 import org.jointheleague.nerdherd.iaroc.Robot;
 
@@ -14,24 +15,31 @@ public class TurnThread {
 
     public static final int DEFAULT_TURN_RADIUS = 80;
 
-    public static void startTurn(Robot r, int angle) {
-        Thread t = new Thread(() -> {
-            int[] curWS = new int[]{250, 250};
-            try {
-                int[] wheelSpeeds = r.computeWheelSpeed(DEFAULT_TURN_RADIUS, angle);
-                int speed = (wheelSpeeds[0] + wheelSpeeds[1]) / 2;
-                int distance = (int) (Math.PI*DEFAULT_TURN_RADIUS*angle) / 180;
-                int time = distance / speed;
-                r.driveDirect(wheelSpeeds[0], wheelSpeeds[1]);
-                Thread.sleep(time);
-            } catch (ConnectionLostException cle) {
-                TurnThread.kill();
-            } catch (InterruptedException e) {
-                TurnThread.kill();
-            } finally {
+    public static void startTurn(Brain b, int angle) {
+        final int nangle = angle;
+        final Brain nb = b;
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int[] curWS = new int[]{250, 250};
                 try {
-                    r.driveDirect(curWS[0],curWS[1]);
-                } catch (ConnectionLostException e) { };
+                    int[] wheelSpeeds = nb.computeWheelSpeed(DEFAULT_TURN_RADIUS, nangle);
+                    int speed = (wheelSpeeds[0] + wheelSpeeds[1]) / 2;
+                    int distance = (int) (Math.PI * DEFAULT_TURN_RADIUS * nangle) / 180;
+                    int time = distance / speed;
+                    nb.driveDirect(wheelSpeeds[0], wheelSpeeds[1]);
+                    Thread.sleep(time);
+                } catch (ConnectionLostException cle) {
+                    TurnThread.kill();
+                } catch (InterruptedException e) {
+                    TurnThread.kill();
+                } finally {
+                    try {
+                        nb.driveDirect(curWS[0], curWS[1]);
+                    } catch (ConnectionLostException e) {
+                    }
+                    ;
+                }
             }
         });
         t.start();
