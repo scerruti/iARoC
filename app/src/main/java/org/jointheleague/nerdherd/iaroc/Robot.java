@@ -1,9 +1,11 @@
 package org.jointheleague.nerdherd.iaroc;
 
-/**************************************************************************
+/**
+ * ***********************************************************************
  * Super Happy version...ultrasonics working...Version 140512A...mods by Vic
  * Added compass class...works..updatged to adt bundle 20140321
- **************************************************************************/
+ * ************************************************************************
+ */
 
 import android.os.SystemClock;
 
@@ -68,19 +70,27 @@ public class Robot extends IRobotCreateAdapter {
     }
 
     public int[] computeWheelSpeed(int turnRadius, int angleOfTurn) {
-        int leftWheelSpeed = 250;
-        int rightWheelSpeed = 250;
+        double leftWheelSpeed = 500;
+        double rightWheelSpeed = 500;
 
-        int a = turnRadius + DISTANCE_TO_CENTER;
-        int b = turnRadius - DISTANCE_TO_CENTER;
-        int arcRobot = Math.round(turnRadius * angleOfTurn * 180 / Math.PI);
-        int arcA = Math.round(a * angleOfTurn * 180 / Math.PI);
-        int arcB = Math.round(b * angleOfTurn * 180 / Math.PI);
-//      int leftWheelSpeed = this.getCurrentWheelSpeed()[Robot.LEFT_WHEEL];
-//      int rightWheelSpeed = this.getCurrentWheelSpeed()[Robot.RIGHT_WHEEL];
-
-        int time = arcRobot / ((rightWheelSpeed + leftWheelSpeed) / 2);
-        return new int[]{arcA / time, arcB / time};
+        double a = turnRadius + DISTANCE_TO_CENTER;
+        double b = turnRadius - DISTANCE_TO_CENTER;
+        double arcRobot = turnRadius * angleOfTurn * 180 / Math.PI;
+        double arcA = Math.round(a * angleOfTurn * 180 / Math.PI);
+        double arcB = Math.round(b * angleOfTurn * 180 / Math.PI);
+        // int leftWheelSpeed = this.getCurrentWheelSpeed()[Robot.LEFT_WHEEL];
+        // int rightWheelSpeed = this.getCurrentWheelSpeed()[Robot.RIGHT_WHEEL];
+        double time = arcRobot / ((rightWheelSpeed + leftWheelSpeed) / 2);
+        double aSpeed = arcA / time;
+        double bSpeed = arcB / time;
+        if (aSpeed > 500) {
+            bSpeed = 500 * bSpeed / aSpeed;
+            aSpeed = 500;
+        } else if (bSpeed > 500) {
+            aSpeed = 500 * aSpeed / bSpeed;
+            bSpeed = 500;
+        }
+        return new int[]{(int) aSpeed, (int) bSpeed};
     }
 
 //	public void turn(int commandAngle) throws ConnectionLostException //Doesn't work for turns through 360
