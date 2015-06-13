@@ -68,6 +68,10 @@ public class Robot extends IRobotCreateAdapter {
 
     }
 
+	public int[] computeWheelSpeed(int defaultTurnRadius, int angle) {
+		return new int[]{343,156}; // TODO implemented by Russ and Ruoya
+	}
+
 //	public void turn(int commandAngle) throws ConnectionLostException //Doesn't work for turns through 360
 //	{
 //		int startAzimuth = 0;
