@@ -28,7 +28,7 @@ public class Brain extends IRobotCreateAdapter {
         //what would you like me to do, Clever Human?
         try {
             Thread.sleep(5000);
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignored) {
 
         }
         TurnThread.startTurn(this, 90);
@@ -41,7 +41,7 @@ public class Brain extends IRobotCreateAdapter {
     }
     /* This method is called repeatedly. */
     public void loop() throws ConnectionLostException {
-        try {
+        /*try {
             dashboard.log("BEFORE SONAR READ");
             sonar.read();
             dashboard.log("AFTER SONAR READ");
@@ -63,7 +63,8 @@ public class Brain extends IRobotCreateAdapter {
 
         }
         driveDirect(0,0);
-        theta+=45;
+        theta+=45;*/
+        dashboard.speak("Is this what happens?");
     }
 
     protected int[] getCoordinate(int theta,int distance){
