@@ -13,7 +13,7 @@ public class TurnThread {
 
     protected static boolean alive = true;
 
-    public static final int DEFAULT_TURN_RADIUS = 80;
+    public static final int DEFAULT_TURN_RADIUS = 36;
 
     public static void startTurn(final Brain b, final int angle) {
         Thread t = new Thread(new Runnable() {
@@ -21,14 +21,14 @@ public class TurnThread {
             public void run() {
                 int[] curWS = new int[]{250, 250};
                 try {
-                    int[] wheelSpeeds = b.computeWheelSpeed(DEFAULT_TURN_RADIUS, angle);
-                    System.out.printf("Current: %d %d. New: %d %d", curWS[0], curWS[1], wheelSpeeds[0], wheelSpeeds[1]);
-                    int speed = (wheelSpeeds[0] + wheelSpeeds[1]) / 2;
-                    int distance = (int) (Math.PI * DEFAULT_TURN_RADIUS * angle) / 180;
-                    int time = distance / speed;
-                    System.out.printf("Time: %d", time);
-                    b.driveDirect(wheelSpeeds[0], wheelSpeeds[1]);
-                    SystemClock.sleep(time);
+                    double[] wheelSpeeds = b.computeWheelSpeed(DEFAULT_TURN_RADIUS, angle);
+                    double speed = (wheelSpeeds[0] + wheelSpeeds[1]) / 2;
+                    double distance = (Math.PI * DEFAULT_TURN_RADIUS * angle) / 180;
+                    double time = (distance / speed) * 1000;
+                    b.getDashboard().log("Speeds:\t"+wheelSpeeds);
+                    b.getDashboard().log("Time:\t" + time);
+                    b.driveDirect((int) wheelSpeeds[0], (int) wheelSpeeds[1]);
+                    SystemClock.sleep((int) time);
                 } catch (ConnectionLostException cle) {
                     TurnThread.kill();
                 } finally {

@@ -37,8 +37,13 @@ public class Brain extends IRobotCreateAdapter {
 
 
     }
-    public int[] computeWheelSpeed(int defaultTurnRadius, int angle) {
-        return new int[]{343,156}; // TODO implemented by Russ and Ruoya
+
+    public Dashboard getDashboard() {
+        return dashboard;
+    }
+
+    public double[] computeWheelSpeed(int defaultTurnRadius, int angle) {
+        return new double[]{343.0d,156.0d}; // TODO implemented by Russ and Ruoya
     }
     /* This method is called repeatedly. */
     public void loop() throws ConnectionLostException {
