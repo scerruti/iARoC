@@ -11,6 +11,7 @@ public class Brain extends IRobotCreateAdapter {
     private final Dashboard dashboard;
     public UltraSonicSensors sonar;
     int theta=0;
+    public static final int DISTANCE_TO_CENTER = 30;
 
     public Brain(IOIO ioio, IRobotCreateInterface create, Dashboard dashboard)
             throws ConnectionLostException {
@@ -59,5 +60,29 @@ public class Brain extends IRobotCreateAdapter {
         int x =  (int)Math.round((distance*Math.cos(theta*Math.PI/180)));
         int y = (int)Math.round((distance*Math.sin(theta * Math.PI / 180)));
         return new int[]{x, y};
+    }
+
+    public int[] computeWheelSpeed(int turnRadius, int angleOfTurn) {
+        double leftWheelSpeed = 500;
+        double rightWheelSpeed = 500;
+
+        double a = turnRadius + DISTANCE_TO_CENTER;
+        double b = turnRadius - DISTANCE_TO_CENTER;
+        double arcRobot = turnRadius * angleOfTurn * 180 / Math.PI;
+        double arcA = Math.round(a * angleOfTurn * 180 / Math.PI);
+        double arcB = Math.round(b * angleOfTurn * 180 / Math.PI);
+        // int leftWheelSpeed = this.getCurrentWheelSpeed()[Robot.LEFT_WHEEL];
+        // int rightWheelSpeed = this.getCurrentWheelSpeed()[Robot.RIGHT_WHEEL];
+        double time = arcRobot / ((rightWheelSpeed + leftWheelSpeed) / 2);
+        double aSpeed = arcA / time;
+        double bSpeed = arcB / time;
+        if (aSpeed > 500) {
+            bSpeed = 500 * bSpeed / aSpeed;
+            aSpeed = 500;
+        } else if (bSpeed > 500) {
+            aSpeed = 500 * aSpeed / bSpeed;
+            bSpeed = 500;
+        }
+        return new int[]{(int) aSpeed, (int) bSpeed};
     }
 }
