@@ -1,5 +1,7 @@
 package org.jointheleague.nerdherd.iaroc.thread.navigate.turn;
 
+import android.os.SystemClock;
+
 import org.jointheleague.nerdherd.iaroc.Brain;
 
 import ioio.lib.api.exception.ConnectionLostException;
@@ -13,30 +15,24 @@ public class TurnThread {
 
     public static final int DEFAULT_TURN_RADIUS = 80;
 
-    public static void startTurn(Brain b, int angle) {
-        final int nangle = angle;
-        final Brain nb = b;
+    public static void startTurn(final Brain b, final int angle) {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 int[] curWS = new int[]{250, 250};
                 try {
-                    int[] wheelSpeeds = nb.computeWheelSpeed(DEFAULT_TURN_RADIUS, nangle);
+                    int[] wheelSpeeds = b.computeWheelSpeed(DEFAULT_TURN_RADIUS, angle);
                     int speed = (wheelSpeeds[0] + wheelSpeeds[1]) / 2;
-                    int distance = (int) (Math.PI * DEFAULT_TURN_RADIUS * nangle) / 180;
+                    int distance = (int) (Math.PI * DEFAULT_TURN_RADIUS * angle) / 180;
                     int time = distance / speed;
-                    nb.driveDirect(wheelSpeeds[0], wheelSpeeds[1]);
-                    Thread.sleep(time);
+                    b.driveDirect(wheelSpeeds[0], wheelSpeeds[1]);
+                    SystemClock.sleep(time);
                 } catch (ConnectionLostException cle) {
-                    TurnThread.kill();
-                } catch (InterruptedException e) {
                     TurnThread.kill();
                 } finally {
                     try {
-                        nb.driveDirect(curWS[0], curWS[1]);
-                    } catch (ConnectionLostException e) {
-                    }
-                    ;
+                        b.driveDirect(curWS[0], curWS[1]);
+                    } catch (ConnectionLostException e) {}
                 }
             }
         });
