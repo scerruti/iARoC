@@ -12,6 +12,7 @@ public class Brain extends IRobotCreateAdapter {
     private final Dashboard dashboard;
     public UltraSonicSensors sonar;
     int theta=0;
+    private boolean turnStarted = false;
 
     public Brain(IOIO ioio, IRobotCreateInterface create, Dashboard dashboard)
             throws ConnectionLostException {
@@ -31,7 +32,7 @@ public class Brain extends IRobotCreateAdapter {
         } catch (InterruptedException ignored) {
 
         }
-        TurnThread.startTurn(this, 90);
+//        TurnThread.startTurn(this, 90);
 
 
 
@@ -64,7 +65,10 @@ public class Brain extends IRobotCreateAdapter {
         }
         driveDirect(0,0);
         theta+=45;*/
-        dashboard.speak("Is this what happens?");
+        if(!turnStarted) {
+            turnStarted = true;
+            TurnThread.startTurn(this, 90);
+        }
     }
 
     protected int[] getCoordinate(int theta,int distance){
