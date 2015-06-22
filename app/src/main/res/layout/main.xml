@@ -14,7 +14,37 @@
         android:textSize="24sp"
         android:textStyle="bold">
     </TextView>
-    
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/speedBar"
+        android:max="500"
+        android:progress="425"
+        android:indeterminate="false" />
+
+    <Button
+        android:layout_width="107dp"
+        android:layout_height="wrap_content"
+        android:text="Drive"
+        android:id="@+id/driveButton"
+        android:layout_gravity="right" />
+
+    <TextView
+        android:layout_width="216dp"
+        android:layout_height="50dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="425"
+        android:id="@+id/speedText" />
+
+    <CheckBox
+        android:layout_width="215dp"
+        android:layout_height="wrap_content"
+        android:text="Output Bump Info"
+        android:id="@+id/bumpBox"
+        android:checked="false"
+        android:textSize="24dp" />
+
     <ScrollView android:id="@+id/scroller"
                 android:layout_width="fill_parent" 
                 android:layout_height="fill_parent"

@@ -7,6 +7,7 @@ package org.jointheleague.nerdherd.iaroc;
  **************************************************************************/
 import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
+import ioio.lib.util.IOIOConnectionManager;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
 
@@ -22,9 +23,14 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 /**
@@ -75,6 +81,11 @@ public class Dashboard extends IOIOActivity implements
     private double azimuth;
     private double pitch;
     private double roll;
+    public SeekBar slider;
+    private TextView speedText;
+    private Button drive;
+    public int progress = 425;
+    public CheckBox bumpBox;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -108,6 +119,48 @@ public class Dashboard extends IOIOActivity implements
 
         mText = (TextView) findViewById(R.id.text);
         scroller = (ScrollView) findViewById(R.id.scroller);
+        slider = (SeekBar) findViewById(R.id.speedBar);
+        speedText = (TextView) findViewById(R.id.speedText);
+        slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                Dashboard.this.progress = progress;
+                speedText.setText(Integer.toString(progress));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        drive = (Button) findViewById(R.id.driveButton);
+        drive.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)  {
+                try {
+                    kalina.driveDirect(
+                            progress,
+                            progress);
+                    int time = 0;
+                    while(!(kalina.isBumpLeft() || kalina.isBumpRight())) {
+                        SystemClock.sleep(1);
+                        time++;
+                    }
+                    kalina.driveDirect(0, 0);
+                    log("S: " + progress + " T: " + time);
+                } catch (ConnectionLostException e) {
+
+                } catch (NullPointerException npe) {
+
+                }
+            }
+        });
+        bumpBox = (CheckBox) findViewById(R.id.bumpBox);
         log(getString(R.string.wait_ioio));
 
     }
