@@ -27,19 +27,20 @@ public class Brain extends IRobotCreateAdapter {
     public void initialize() throws ConnectionLostException {
         dashboard.log("Hello! I'm a Clever Robot!");
         //what would you like me to do, Clever Human?
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException ignored) {
-
-        }
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException ignored) {
+//
+//        }
 //        TurnThread.startTurn(this, 90);
-
+        dashboard.speak("Good Day!");
 
 
     }
 
     public Dashboard getDashboard() {
         return dashboard;
+
     }
 
     public double[] computeWheelSpeed(int defaultTurnRadius, int angle) {
@@ -70,10 +71,6 @@ public class Brain extends IRobotCreateAdapter {
         }
         driveDirect(0,0);
         theta+=45;*/
-        if(!turnStarted) {
-            turnStarted = true;
-            TurnThread.startTurn(this, 90);
-        }
     }
 
     protected int[] getCoordinate(int theta,int distance){

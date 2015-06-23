@@ -4,10 +4,13 @@ import android.os.SystemClock;
 
 import org.jointheleague.nerdherd.iaroc.Brain;
 
+import java.util.Arrays;
+
 import ioio.lib.api.exception.ConnectionLostException;
 
 /**
  * Created by firestar115 on 6/4/15.
+ * Class: iARoC:${PACKAGE_NAME}.${CLASS_NAME}
  */
 public class TurnThread {
 
@@ -24,17 +27,18 @@ public class TurnThread {
                     double[] wheelSpeeds = b.computeWheelSpeed(DEFAULT_TURN_RADIUS, angle);
                     double speed = (wheelSpeeds[0] + wheelSpeeds[1]) / 2;
                     double distance = (Math.PI * DEFAULT_TURN_RADIUS * angle) / 180;
-                    double time = (distance / speed) * 1000;
-                    b.getDashboard().log("Speeds:\t"+wheelSpeeds);
-                    b.getDashboard().log("Time:\t" + time);
+                    double time = (distance / speed);
+                    b.getDashboard().log("Speeds:   " + Arrays.toString(wheelSpeeds) +"cm/s");
+                    b.getDashboard().log("Time:     " + time + "s");
+                    b.getDashboard().log("Distance: " + distance+"cm");
                     b.driveDirect((int) wheelSpeeds[0], (int) wheelSpeeds[1]);
-                    SystemClock.sleep((int) time);
+                    SystemClock.sleep((int) (time * 10000));
                 } catch (ConnectionLostException cle) {
                     TurnThread.kill();
                 } finally {
                     try {
                         b.driveDirect(curWS[0], curWS[1]);
-                    } catch (ConnectionLostException e) {}
+                    } catch (ConnectionLostException ignored) {/*Impossible :)*/}
                 }
             }
         });

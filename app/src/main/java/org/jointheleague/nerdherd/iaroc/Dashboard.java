@@ -12,6 +12,7 @@ import ioio.lib.util.android.IOIOActivity;
 
 import java.util.Locale;
 
+import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnThread;
 import org.wintrisstech.irobot.ioio.IRobotCreateInterface;
 import org.wintrisstech.irobot.ioio.SimpleIRobotCreate;
 
@@ -24,8 +25,10 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 /**
@@ -76,6 +79,9 @@ public class Dashboard extends IOIOActivity implements
     private double azimuth;
     private double pitch;
     private double roll;
+    public Button do90dturn;
+    private SeekBar slider;
+    private int turnAngle;
 
     public Brain getBrain() {
         return kalina;
@@ -113,6 +119,31 @@ public class Dashboard extends IOIOActivity implements
 
         mText = (TextView) findViewById(R.id.text);
         scroller = (ScrollView) findViewById(R.id.scroller);
+
+        do90dturn = (Button) findViewById(R.id.turn90Degs);
+        do90dturn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TurnThread.startTurn(kalina, 90);
+            }
+        });
+        slider = (SeekBar) findViewById(R.id.angleSeekBar);
+        slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                Dashboard.this.turnAngle = progress - 180;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
         log(getString(R.string.wait_ioio));
 
     }
@@ -143,6 +174,7 @@ public class Dashboard extends IOIOActivity implements
             if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
                 // success, create the TTS instance
                 mTts = new TextToSpeech(this, this);
+                mTts.setPitch(3.0f);
             } else {
                 // missing data, install it
                 Intent installIntent = new Intent();

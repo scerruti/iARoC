@@ -19,7 +19,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/TurnTestButton"
-        android:id="@+id/button" />
+        android:id="@+id/turn90Degs" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/angleSeekBar"
+        android:layout_gravity="center_horizontal"
+        android:max="360"
+        android:progress="180"
+        android:indeterminate="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="0"
+        android:id="@+id/angleTextView"
+        android:layout_gravity="center_horizontal" />
 
     <ScrollView android:id="@+id/scroller"
                 android:layout_width="fill_parent" 
