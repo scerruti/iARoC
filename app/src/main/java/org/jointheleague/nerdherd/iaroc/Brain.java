@@ -1,6 +1,5 @@
 package org.jointheleague.nerdherd.iaroc;
 
-import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnThread;
 import org.jointheleague.nerdherd.sensors.UltraSonicSensors;
 import org.wintrisstech.irobot.ioio.IRobotCreateAdapter;
 import org.wintrisstech.irobot.ioio.IRobotCreateInterface;
@@ -12,7 +11,7 @@ public class Brain extends IRobotCreateAdapter {
     private final Dashboard dashboard;
     public UltraSonicSensors sonar;
     int theta=0;
-    private boolean turnStarted = false;
+    public static final int DISTANCE_TO_CENTER = 30;
 
     public Brain(IOIO ioio, IRobotCreateInterface create, Dashboard dashboard)
             throws ConnectionLostException {
@@ -21,34 +20,18 @@ public class Brain extends IRobotCreateAdapter {
         this.dashboard = dashboard;
     }
 
-
-
     /* This method is executed when the robot first starts up. */
     public void initialize() throws ConnectionLostException {
         dashboard.log("Hello! I'm a Clever Robot!");
         //what would you like me to do, Clever Human?
-//        try {
-//            Thread.sleep(5000);
-//        } catch (InterruptedException ignored) {
-//
-//        }
-//        TurnThread.startTurn(this, 90);
-        dashboard.speak("Good Day!");
 
 
-    }
 
-    public Dashboard getDashboard() {
-        return dashboard;
 
-    }
-
-    public double[] computeWheelSpeed(int defaultTurnRadius, int angle) {
-        return new double[]{343.0d,156.0d}; // TODO implemented by Russ and Ruoya
     }
     /* This method is called repeatedly. */
     public void loop() throws ConnectionLostException {
-        /*try {
+        try {
             dashboard.log("BEFORE SONAR READ");
             sonar.read();
             dashboard.log("AFTER SONAR READ");
@@ -70,12 +53,36 @@ public class Brain extends IRobotCreateAdapter {
 
         }
         driveDirect(0,0);
-        theta+=45;*/
+        theta+=45;
     }
 
     protected int[] getCoordinate(int theta,int distance){
         int x =  (int)Math.round((distance*Math.cos(theta*Math.PI/180)));
         int y = (int)Math.round((distance*Math.sin(theta * Math.PI / 180)));
         return new int[]{x, y};
+    }
+
+    public int[] computeWheelSpeed(int turnRadius, int angleOfTurn) {
+        double leftWheelSpeed = 500;
+        double rightWheelSpeed = 500;
+
+        double a = turnRadius + DISTANCE_TO_CENTER;
+        double b = turnRadius - DISTANCE_TO_CENTER;
+        double arcRobot = turnRadius * angleOfTurn * 180 / Math.PI;
+        double arcA = Math.round(a * angleOfTurn * 180 / Math.PI);
+        double arcB = Math.round(b * angleOfTurn * 180 / Math.PI);
+        // int leftWheelSpeed = this.getCurrentWheelSpeed()[Robot.LEFT_WHEEL];
+        // int rightWheelSpeed = this.getCurrentWheelSpeed()[Robot.RIGHT_WHEEL];
+        double time = arcRobot / ((rightWheelSpeed + leftWheelSpeed) / 2);
+        double aSpeed = arcA / time;
+        double bSpeed = arcB / time;
+        if (aSpeed > 500) {
+            bSpeed = 500 * bSpeed / aSpeed;
+            aSpeed = 500;
+        } else if (bSpeed > 500) {
+            aSpeed = 500 * aSpeed / bSpeed;
+            bSpeed = 500;
+        }
+        return new int[]{(int) aSpeed, (int) bSpeed};
     }
 }
