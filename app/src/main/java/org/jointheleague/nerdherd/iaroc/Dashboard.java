@@ -121,6 +121,7 @@ public class Dashboard extends IOIOActivity implements
         scroller = (ScrollView) findViewById(R.id.scroller);
         slider = (SeekBar) findViewById(R.id.speedBar);
         speedText = (TextView) findViewById(R.id.speedText);
+
         slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -295,6 +296,9 @@ public class Dashboard extends IOIOActivity implements
 				 */
                 kalina = new Brain(ioio, iRobotCreate, Dashboard.this);
                 kalina.initialize();
+
+                DragRace dragrace = new DragRace(Dashboard.this);
+                dragrace.runMission();
             }
 
             public void loop() throws ConnectionLostException,
@@ -333,5 +337,10 @@ public class Dashboard extends IOIOActivity implements
                 scroller.smoothScrollTo(0, mText.getBottom());
             }
         });
+    }
+
+    public Brain getBrain()
+    {
+        return kalina;
     }
 }
