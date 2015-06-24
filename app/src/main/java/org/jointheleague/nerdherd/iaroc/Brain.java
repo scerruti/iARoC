@@ -28,6 +28,7 @@ public class Brain extends IRobotCreateAdapter {
     public int lws = MAX_SPEED;
     public int rws = MAX_SPEED;
 
+
     public Brain(IOIO ioio, IRobotCreateInterface create, Dashboard dashboard)
             throws ConnectionLostException {
         super(create);
@@ -199,5 +200,18 @@ public class Brain extends IRobotCreateAdapter {
     public void unregisterFrontDistanceListener(DistanceSensorListener frontDistanceListener) {
         this.frontDistanceListeners.remove(frontDistanceListener);
         dashboard.log("Unregistered front distance listener");
+    }
+
+    public void hitWall(String event) {
+        if (event.equals("maze")) {
+            try {
+                readSensors(SENSORS_BUMPS_AND_WHEEL_DROPS);
+                if (isBumpLeft() && isBumpRight()) {
+
+                }
+            } catch (ConnectionLostException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
