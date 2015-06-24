@@ -7,12 +7,12 @@ package org.jointheleague.nerdherd.iaroc;
  **************************************************************************/
 import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
-import ioio.lib.util.IOIOConnectionManager;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
 
 import java.util.Locale;
 
+import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnThread;
 import org.wintrisstech.irobot.ioio.IRobotCreateInterface;
 import org.wintrisstech.irobot.ioio.SimpleIRobotCreate;
 
@@ -23,12 +23,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -81,11 +79,13 @@ public class Dashboard extends IOIOActivity implements
     private double azimuth;
     private double pitch;
     private double roll;
-    public SeekBar slider;
-    private TextView speedText;
-    private Button drive;
-    public int progress = 425;
-    public CheckBox bumpBox;
+    public Button do90dturn;
+    private SeekBar slider;
+    private int turnAngle;
+
+    public Brain getBrain() {
+        return kalina;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -119,14 +119,19 @@ public class Dashboard extends IOIOActivity implements
 
         mText = (TextView) findViewById(R.id.text);
         scroller = (ScrollView) findViewById(R.id.scroller);
-        slider = (SeekBar) findViewById(R.id.speedBar);
-        speedText = (TextView) findViewById(R.id.speedText);
 
+        do90dturn = (Button) findViewById(R.id.turn90Degs);
+        do90dturn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TurnThread.startTurn(kalina, 90);
+            }
+        });
+        slider = (SeekBar) findViewById(R.id.angleSeekBar);
         slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                Dashboard.this.progress = progress;
-                speedText.setText(Integer.toString(progress));
+                Dashboard.this.turnAngle = progress - 180;
             }
 
             @Override
@@ -139,29 +144,6 @@ public class Dashboard extends IOIOActivity implements
 
             }
         });
-        drive = (Button) findViewById(R.id.driveButton);
-        drive.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v)  {
-                try {
-                    kalina.driveDirect(
-                            progress,
-                            progress);
-                    int time = 0;
-                    while(!(kalina.isBumpLeft() || kalina.isBumpRight())) {
-                        SystemClock.sleep(1);
-                        time++;
-                    }
-                    kalina.driveDirect(0, 0);
-                    log("S: " + progress + " T: " + time);
-                } catch (ConnectionLostException e) {
-
-                } catch (NullPointerException npe) {
-
-                }
-            }
-        });
-        bumpBox = (CheckBox) findViewById(R.id.bumpBox);
         log(getString(R.string.wait_ioio));
 
     }
@@ -192,6 +174,7 @@ public class Dashboard extends IOIOActivity implements
             if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
                 // success, create the TTS instance
                 mTts = new TextToSpeech(this, this);
+                mTts.setPitch(3.0f);
             } else {
                 // missing data, install it
                 Intent installIntent = new Intent();
@@ -296,9 +279,6 @@ public class Dashboard extends IOIOActivity implements
 				 */
                 kalina = new Brain(ioio, iRobotCreate, Dashboard.this);
                 kalina.initialize();
-
-                DragRace dragrace = new DragRace(Dashboard.this);
-                dragrace.runMission();
             }
 
             public void loop() throws ConnectionLostException,
@@ -337,10 +317,5 @@ public class Dashboard extends IOIOActivity implements
                 scroller.smoothScrollTo(0, mText.getBottom());
             }
         });
-    }
-
-    public Brain getBrain()
-    {
-        return kalina;
     }
 }
