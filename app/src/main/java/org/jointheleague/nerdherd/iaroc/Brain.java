@@ -32,7 +32,7 @@ public class Brain extends IRobotCreateAdapter {
     public Brain(IOIO ioio, IRobotCreateInterface create, Dashboard dashboard)
             throws ConnectionLostException {
         super(create);
-        frontDistanceListeners = new ArrayList<DistanceSensorListener>();
+        frontDistanceListeners = new ArrayList<>();
         sonar = new UltraSonicSensors(ioio);
         this.dashboard = dashboard;
     }
@@ -207,11 +207,15 @@ public class Brain extends IRobotCreateAdapter {
             try {
                 readSensors(SENSORS_BUMPS_AND_WHEEL_DROPS);
                 if (isBumpLeft() && isBumpRight()) {
-
+                    // Why?
                 }
             } catch (ConnectionLostException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public Dashboard getDashboard() {
+        return dashboard;
     }
 }

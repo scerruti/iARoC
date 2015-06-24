@@ -24,14 +24,14 @@ public class TurnThread {
             public void run() {
                 int[] curWS = new int[]{250, 250};
                 try {
-                    double[] wheelSpeeds = b.computeWheelSpeed(DEFAULT_TURN_RADIUS, angle);
+                    int[] wheelSpeeds = b.computeWheelSpeed(DEFAULT_TURN_RADIUS, angle);
                     double speed = (wheelSpeeds[0] + wheelSpeeds[1]) / 2;
                     double distance = (Math.PI * DEFAULT_TURN_RADIUS * angle) / 180;
                     double time = (distance / speed);
                     b.getDashboard().log("Speeds:   " + Arrays.toString(wheelSpeeds) +"cm/s");
                     b.getDashboard().log("Time:     " + time + "s");
                     b.getDashboard().log("Distance: " + distance+"cm");
-                    b.driveDirect((int) wheelSpeeds[0], (int) wheelSpeeds[1]);
+                    b.driveDirect(wheelSpeeds[0], wheelSpeeds[1]);
                     SystemClock.sleep((int) (time * 10000));
                 } catch (ConnectionLostException cle) {
                     TurnThread.kill();
