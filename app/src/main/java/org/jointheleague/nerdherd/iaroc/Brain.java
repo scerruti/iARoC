@@ -20,6 +20,7 @@ public class Brain extends IRobotCreateAdapter {
     ArrayList<DistanceSensorListener> frontDistanceListeners;
     ArrayList<DistanceSensorListener> leftDistanceListeners;
     ArrayList<DistanceSensorListener> rightDistanceListeners;
+    ArrayList<LoopAction> loopActions;
     private int frontDistance = -1;
     private boolean isBumpLeft = false;
     private boolean isBumpRight = false;
@@ -44,7 +45,6 @@ public class Brain extends IRobotCreateAdapter {
     public void initialize() throws ConnectionLostException {
         dashboard.log("Hello! I'm a Clever Robot!");
         //what would you like me to do, Clever Human?
-        TurnThread.startTurn(this, 90);
     }
 
     public int[] computeWheelSpeed(int turnRadius, int angleOfTurn) {
@@ -178,10 +178,17 @@ public class Brain extends IRobotCreateAdapter {
             dashboard.log("Interruption!");
             e.printStackTrace();
         }
+
+        if (loopActions != null) {
+            for (LoopAction action : loopActions) {
+                action.doAction();
+            }
+        }
     }
 
     protected void driveForward(int a, int b) {
         try {
+            dashboard.log("Driving forward, " + a + " " + b);
             driveDirect(a, b);
         } catch (ConnectionLostException e) {
             e.printStackTrace();
@@ -196,32 +203,26 @@ public class Brain extends IRobotCreateAdapter {
 
     public void registerFrontDistanceListener(DistanceSensorListener frontDistanceListener) {
         this.frontDistanceListeners.add(frontDistanceListener);
-        dashboard.log("Registered front distance listener");
     }
 
     public void unregisterFrontDistanceListener(DistanceSensorListener frontDistanceListener) {
         this.frontDistanceListeners.remove(frontDistanceListener);
-        dashboard.log("Unregistered front distance listener");
     }
 
     public void registerLeftDistanceListener(DistanceSensorListener leftDistanceListener) {
         this.leftDistanceListeners.add(leftDistanceListener);
-        dashboard.log("Registered left distance listener");
     }
 
     public void unregisterLeftDistanceListener(DistanceSensorListener leftDistanceListener) {
         this.leftDistanceListeners.remove(leftDistanceListener);
-        dashboard.log("Unregistered left distance listener");
     }
 
     public void registerRightDistanceListener(DistanceSensorListener rightDistanceListener) {
         this.rightDistanceListeners.add(rightDistanceListener);
-        dashboard.log("Registered right distance listener");
     }
 
     public void unregisterRightDistanceListener(DistanceSensorListener rightDistanceListener) {
         this.rightDistanceListeners.remove(rightDistanceListener);
-        dashboard.log("Unregistered right distance listener");
     }
 
     public void hitWall(String event) {
@@ -242,7 +243,6 @@ public class Brain extends IRobotCreateAdapter {
         try {
             sonar.read();
 //            dashboard.log("Sonar read");
-            dashboard.log("L: " + sonar.getLeftDistance() + "R: " + sonar.getRightDistance() );
         } catch (InterruptedException e) {
 //            dashboard.log("ERROR: "+e.getLocalizedMessage());
         }
@@ -257,5 +257,12 @@ public class Brain extends IRobotCreateAdapter {
 
     public Dashboard getDashboard() {
         return dashboard;
+    }
+
+    public void registerLoopAction(LoopAction action) {
+        if (loopActions == null) {
+            loopActions = new ArrayList<>();
+        }
+        loopActions.add(action);
     }
 }

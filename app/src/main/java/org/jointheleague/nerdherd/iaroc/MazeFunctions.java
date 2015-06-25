@@ -2,6 +2,8 @@ package org.jointheleague.nerdherd.iaroc;
 
 import android.os.SystemClock;
 
+import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnThread;
+
 /**
  * Created by RussB on 6/24/15.
  */
@@ -46,28 +48,35 @@ public class MazeFunctions {
     }
 
     public void turnRight() {
-        // Turn right
+        TurnThread.startTurn(dashboard.getBrain(), 90, false);
+        dashboard.log("Turning right");
     }
 
     public void turnLeft() {
-        // Turn left
+        TurnThread.startTurn(dashboard.getBrain(), -90, false);
+        dashboard.log("Turning left");
+    }
+
+    public void turnAround() {
+        TurnThread.startTurnWithRadius(dashboard.getBrain(), 180, false, 0);
     }
 
     public void driveSquare() {
         dashboard.getBrain().driveForward(MAX_WHEEL_SPEED, MAX_WHEEL_SPEED);
         SystemClock.sleep(TIME);
-        dashboard.getBrain().driveForward(0, 0);
+//        dashboard.getBrain().driveForward(0, 0);
+        dashboard.log("Driving forward a square");
     }
 
     public void driveHalfSquare() {
         dashboard.getBrain().driveForward(MAX_WHEEL_SPEED, MAX_WHEEL_SPEED);
         SystemClock.sleep(TIME / 2);
-        dashboard.getBrain().driveForward(0, 0);
+//        dashboard.getBrain().driveForward(0, 0);
     }
 
     public void driveBackHalfSquare() {
         dashboard.getBrain().driveForward(-MAX_WHEEL_SPEED, -MAX_WHEEL_SPEED);
         SystemClock.sleep(TIME / 2);
-        dashboard.getBrain().driveForward(0, 0);
+//        dashboard.getBrain().driveForward(0, 0);
     }
 }

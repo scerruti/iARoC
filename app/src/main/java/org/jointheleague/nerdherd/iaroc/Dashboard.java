@@ -279,8 +279,7 @@ public class Dashboard extends IOIOActivity implements
 				 */
                 kalina = new Brain(ioio, iRobotCreate, Dashboard.this);
                 kalina.initialize();
-                WallHugger wallHugger = new WallHugger(Dashboard.this);
-                wallHugger.rightWallHugger();
+                Maze maze = new Maze(Dashboard.this);
             }
 
             public void loop() throws ConnectionLostException,

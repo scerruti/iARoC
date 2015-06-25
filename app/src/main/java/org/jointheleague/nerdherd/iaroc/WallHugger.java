@@ -18,18 +18,23 @@ public class WallHugger implements DistanceSensorListener {
         mazeFunctions = new MazeFunctions(this.dashboard);
         dashboard.getBrain().registerLeftDistanceListener(this);
         dashboard.getBrain().registerRightDistanceListener(this);
+
         //dashboard.speak("WallHugger Created");
     }
 
     public void rightWallHugger() {
-//        mazeFunctions.driveSquare();
-//        if (!mazeFunctions.isWallRight(rightDistance)) {
-//            mazeFunctions.turnRight();
-//        }
-//        else if (mazeFunctions.isWallFront()) {
-//            mazeFunctions.turnRight();
-//        }
-        dashboard.log("Is there a wall?" + mazeFunctions.isWallFront());
+        //mazeFunctions.driveSquare();
+        if (!mazeFunctions.isWallRight(rightDistance)) {
+            dashboard.log("Turning right");
+            mazeFunctions.turnRight();
+        }
+        else if (mazeFunctions.isWallFront()) {
+            if (mazeFunctions.isWallLeft(leftDistance))
+            {
+                mazeFunctions.turnAround();
+            }
+        }
+        //dashboard.log("Is there a wall?" + mazeFunctions.isWallFront());
     }
 
     public void leftWallHugger() {
