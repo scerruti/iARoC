@@ -34,6 +34,8 @@ public class Brain extends IRobotCreateAdapter {
             throws ConnectionLostException {
         super(create);
         frontDistanceListeners = new ArrayList<>();
+        leftDistanceListeners = new ArrayList<>();
+        rightDistanceListeners = new ArrayList<>();
         sonar = new UltraSonicSensors(ioio);
         this.dashboard = dashboard;
     }
@@ -66,16 +68,13 @@ public class Brain extends IRobotCreateAdapter {
             aSpeed = 500 * aSpeed / bSpeed;
             bSpeed = 500;
         }
-        dashboard.log("time = " + Double.toString(time) +
-                "aSpeed = " + Double.toString(aSpeed) +
-                "bSpeed = " + Double.toString(bSpeed));
         return new int[]{(int) aSpeed, (int) bSpeed};
     }
 
 
     /* This method is called repeatedly. */
     public void loop() throws ConnectionLostException {
-//        TurnThread.startTurn(this, 90);
+        dashboard.log("Loop");
 //        int[] speed = computeWheelSpeed(100, 90);
 //        driveDirect(speed[0], speed[1]);
 //        try {
@@ -140,48 +139,45 @@ public class Brain extends IRobotCreateAdapter {
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
-//        readSensors(SENSORS_BUMPS_AND_WHEEL_DROPS);
-//
-//        if (isBumpRight() != isBumpRight) {
-//                isBumpRight = isBumpRight();
-//                isBumpLeft = isBumpLeft();
-//                for (DistanceSensorListener dsl: frontDistanceListeners)
-//                {
-//                    dsl.frontDistanceListener(isBumpLeft, isBumpRight);
-//                }
-//        }
-//
-//        try {
-//            sonar.read();
-//            if (sonar.getLeftDistance() != leftDistance)
-//            {
-//                leftDistance = sonar.getLeftDistance();
-//                for (DistanceSensorListener dsl: leftDistanceListeners)
-//                {
-//                    dsl.leftDistanceListener(leftDistance);
-//                }
-//            }
-//        } catch (InterruptedException e) {
-//            dashboard.log("Interruption!");
-//            e.printStackTrace();
-//        }
-//
-//        try {
-//            sonar.read();
-//            if (sonar.getRightDistance() != rightDistance)
-//            {
-//                rightDistance = sonar.getRightDistance();
-//                for (DistanceSensorListener dsl: rightDistanceListeners)
-//                {
-//                    dsl.rightDistanceListener(rightDistance);
-//                }
-//            }
-//        } catch (InterruptedException e) {
-//            dashboard.log("Interruption!");
-//            e.printStackTrace();
-//        }
-//
-//        driveDirect(lws, rws);
+        readSensors(SENSORS_BUMPS_AND_WHEEL_DROPS);
+
+        if (isBumpRight() != isBumpRight) {
+                isBumpRight = isBumpRight();
+                isBumpLeft = isBumpLeft();
+                for (DistanceSensorListener dsl: frontDistanceListeners)
+                {
+                    dsl.frontDistanceListener(isBumpLeft, isBumpRight);
+                }
+        }
+        try {
+            sonar.read();
+            if (sonar.getLeftDistance() != leftDistance)
+            {
+                leftDistance = sonar.getLeftDistance();
+                for (DistanceSensorListener dsl: leftDistanceListeners)
+                {
+                    dsl.leftDistanceListener(leftDistance);
+                }
+            }
+        } catch (InterruptedException e) {
+            dashboard.log("Interruption!");
+            e.printStackTrace();
+        }
+
+        try {
+            sonar.read();
+            if (sonar.getRightDistance() != rightDistance)
+            {
+                rightDistance = sonar.getRightDistance();
+                for (DistanceSensorListener dsl: rightDistanceListeners)
+                {
+                    dsl.rightDistanceListener(rightDistance);
+                }
+            }
+        } catch (InterruptedException e) {
+            dashboard.log("Interruption!");
+            e.printStackTrace();
+        }
     }
 
     protected void driveForward(int a, int b) {
@@ -206,6 +202,26 @@ public class Brain extends IRobotCreateAdapter {
     public void unregisterFrontDistanceListener(DistanceSensorListener frontDistanceListener) {
         this.frontDistanceListeners.remove(frontDistanceListener);
         dashboard.log("Unregistered front distance listener");
+    }
+
+    public void registerLeftDistanceListener(DistanceSensorListener leftDistanceListener) {
+        this.leftDistanceListeners.add(leftDistanceListener);
+        dashboard.log("Registered left distance listener");
+    }
+
+    public void unregisterLeftDistanceListener(DistanceSensorListener leftDistanceListener) {
+        this.leftDistanceListeners.remove(leftDistanceListener);
+        dashboard.log("Unregistered left distance listener");
+    }
+
+    public void registerRightDistanceListener(DistanceSensorListener rightDistanceListener) {
+        this.rightDistanceListeners.add(rightDistanceListener);
+        dashboard.log("Registered right distance listener");
+    }
+
+    public void unregisterRightDistanceListener(DistanceSensorListener rightDistanceListener) {
+        this.rightDistanceListeners.remove(rightDistanceListener);
+        dashboard.log("Unregistered right distance listener");
     }
 
     public void hitWall(String event) {
