@@ -26,7 +26,7 @@ public class TurnThread {
                 try {
                     int[] wheelSpeeds = b.computeWheelSpeed(DEFAULT_TURN_RADIUS, angle);
                     double speed = (wheelSpeeds[0] + wheelSpeeds[1]) / 2;
-                    double distance = (Math.PI * DEFAULT_TURN_RADIUS * angle) / 180;
+                    double distance = ( DEFAULT_TURN_RADIUS * angle) * Math.PI / 180;
                     double time = (distance / speed);
                     b.getDashboard().log("Speeds:   " + Arrays.toString(wheelSpeeds) +"cm/s");
                     b.getDashboard().log("Time:     " + time + "s");
