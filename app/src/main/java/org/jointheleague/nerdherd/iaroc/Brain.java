@@ -2,6 +2,7 @@ package org.jointheleague.nerdherd.iaroc;
 
 import android.os.SystemClock;
 
+import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnThread;
 import org.jointheleague.nerdherd.sensors.UltraSonicSensors;
 import org.wintrisstech.irobot.ioio.IRobotCreateAdapter;
 import org.wintrisstech.irobot.ioio.IRobotCreateInterface;
@@ -15,7 +16,7 @@ public class Brain extends IRobotCreateAdapter {
     private final Dashboard dashboard;
     public UltraSonicSensors sonar;
     int theta = 0;
-    public static final int DISTANCE_TO_CENTER = 30;
+    public static final double DISTANCE_TO_CENTER = 13.335;
     ArrayList<DistanceSensorListener> frontDistanceListeners;
     ArrayList<DistanceSensorListener> leftDistanceListeners;
     ArrayList<DistanceSensorListener> rightDistanceListeners;
@@ -41,18 +42,20 @@ public class Brain extends IRobotCreateAdapter {
     public void initialize() throws ConnectionLostException {
         dashboard.log("Hello! I'm a Clever Robot!");
         //what would you like me to do, Clever Human?
+        TurnThread.startTurn(this, 90);
     }
 
     public int[] computeWheelSpeed(int turnRadius, int angleOfTurn) {
-        double leftWheelSpeed = 500;
-        double rightWheelSpeed = 500;
-
+        double leftWheelSpeed = 250;
+        double rightWheelSpeed = 250;
         double a = turnRadius + DISTANCE_TO_CENTER;
         double b = turnRadius - DISTANCE_TO_CENTER;
-        double arcRobot = turnRadius * angleOfTurn * 180 / Math.PI;
-        double arcA = Math.round(a * angleOfTurn * 180 / Math.PI);
-        double arcB = Math.round(b * angleOfTurn * 180 / Math.PI);
-
+        double arcRobot = turnRadius * angleOfTurn * Math.PI / 180;
+        double arcA = a * angleOfTurn * Math.PI / 180;
+        double arcB = b * angleOfTurn * Math.PI / 180;
+        dashboard.log("arcA = " + Double.toString(arcA) +
+                "arc B = " + Double.toString(arcB) +
+                "arc Robot = " + Double.toString(arcRobot));
         double time = arcRobot / ((rightWheelSpeed + leftWheelSpeed) / 2);
         double aSpeed = arcA / time;
         double bSpeed = arcB / time;
@@ -63,13 +66,16 @@ public class Brain extends IRobotCreateAdapter {
             aSpeed = 500 * aSpeed / bSpeed;
             bSpeed = 500;
         }
+        dashboard.log("time = " + Double.toString(time) +
+                "aSpeed = " + Double.toString(aSpeed) +
+                "bSpeed = " + Double.toString(bSpeed));
         return new int[]{(int) aSpeed, (int) bSpeed};
     }
 
 
     /* This method is called repeatedly. */
     public void loop() throws ConnectionLostException {
-        dashboard.log("Loop");
+//        TurnThread.startTurn(this, 90);
 //        int[] speed = computeWheelSpeed(100, 90);
 //        driveDirect(speed[0], speed[1]);
 //        try {
@@ -134,48 +140,48 @@ public class Brain extends IRobotCreateAdapter {
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
-        readSensors(SENSORS_BUMPS_AND_WHEEL_DROPS);
-
-        if (isBumpRight() != isBumpRight) {
-                isBumpRight = isBumpRight();
-                isBumpLeft = isBumpLeft();
-                for (DistanceSensorListener dsl: frontDistanceListeners)
-                {
-                    dsl.frontDistanceListener(isBumpLeft, isBumpRight);
-                }
-        }
-
-        try {
-            sonar.read();
-            if (sonar.getLeftDistance() != leftDistance)
-            {
-                leftDistance = sonar.getLeftDistance();
-                for (DistanceSensorListener dsl: leftDistanceListeners)
-                {
-                    dsl.leftDistanceListener(leftDistance);
-                }
-            }
-        } catch (InterruptedException e) {
-            dashboard.log("Interruption!");
-            e.printStackTrace();
-        }
-
-        try {
-            sonar.read();
-            if (sonar.getRightDistance() != rightDistance)
-            {
-                rightDistance = sonar.getRightDistance();
-                for (DistanceSensorListener dsl: rightDistanceListeners)
-                {
-                    dsl.rightDistanceListener(rightDistance);
-                }
-            }
-        } catch (InterruptedException e) {
-            dashboard.log("Interruption!");
-            e.printStackTrace();
-        }
-
-        driveDirect(lws, rws);
+//        readSensors(SENSORS_BUMPS_AND_WHEEL_DROPS);
+//
+//        if (isBumpRight() != isBumpRight) {
+//                isBumpRight = isBumpRight();
+//                isBumpLeft = isBumpLeft();
+//                for (DistanceSensorListener dsl: frontDistanceListeners)
+//                {
+//                    dsl.frontDistanceListener(isBumpLeft, isBumpRight);
+//                }
+//        }
+//
+//        try {
+//            sonar.read();
+//            if (sonar.getLeftDistance() != leftDistance)
+//            {
+//                leftDistance = sonar.getLeftDistance();
+//                for (DistanceSensorListener dsl: leftDistanceListeners)
+//                {
+//                    dsl.leftDistanceListener(leftDistance);
+//                }
+//            }
+//        } catch (InterruptedException e) {
+//            dashboard.log("Interruption!");
+//            e.printStackTrace();
+//        }
+//
+//        try {
+//            sonar.read();
+//            if (sonar.getRightDistance() != rightDistance)
+//            {
+//                rightDistance = sonar.getRightDistance();
+//                for (DistanceSensorListener dsl: rightDistanceListeners)
+//                {
+//                    dsl.rightDistanceListener(rightDistance);
+//                }
+//            }
+//        } catch (InterruptedException e) {
+//            dashboard.log("Interruption!");
+//            e.printStackTrace();
+//        }
+//
+//        driveDirect(lws, rws);
     }
 
     protected void driveForward(int a, int b) {
@@ -213,6 +219,24 @@ public class Brain extends IRobotCreateAdapter {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void printSonar() throws ConnectionLostException {
+//        dashboard.log("Top of loop");
+        try {
+            sonar.read();
+//            dashboard.log("Sonar read");
+            dashboard.log("L: " + sonar.getLeftDistance() + "R: " + sonar.getRightDistance() );
+        } catch (InterruptedException e) {
+//            dashboard.log("ERROR: "+e.getLocalizedMessage());
+        }
+//        dashboard.log("After Sonar Read");
+    }
+
+    public double getAngleOffset(double width, double l, double r) {
+        double ratio = width / (l + r + 2 * DISTANCE_TO_CENTER);
+        double offsetRadians = Math.asin(ratio);
+        return 90 - Math.toDegrees(offsetRadians);
     }
 
     public Dashboard getDashboard() {
