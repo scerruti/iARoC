@@ -136,10 +136,7 @@ public class Brain extends IRobotCreateAdapter {
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
-        dashboard.log("Before Read");
-
         readSensors(SENSORS_BUMPS_AND_WHEEL_DROPS);
-        dashboard.log("After Read");
 
         if (isBumpRight() != isBumpRight) {
                 isBumpRight = isBumpRight();

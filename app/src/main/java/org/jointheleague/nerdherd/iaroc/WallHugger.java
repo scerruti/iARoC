@@ -22,13 +22,14 @@ public class WallHugger implements DistanceSensorListener {
     }
 
     public void rightWallHugger() {
-        mazeFunctions.driveSquare();
-        if (!mazeFunctions.isWallRight(rightDistance)) {
-            mazeFunctions.turnRight();
-        }
-        else if (mazeFunctions.isWallFront()) {
-            mazeFunctions.turnRight();
-        }
+//        mazeFunctions.driveSquare();
+//        if (!mazeFunctions.isWallRight(rightDistance)) {
+//            mazeFunctions.turnRight();
+//        }
+//        else if (mazeFunctions.isWallFront()) {
+//            mazeFunctions.turnRight();
+//        }
+        dashboard.log("Is there a wall?" + mazeFunctions.isWallFront());
     }
 
     public void leftWallHugger() {
