@@ -18,7 +18,8 @@ public class TurnThread {
 
     public static final int DEFAULT_TURN_RADIUS = 36;
 
-    public static void startTurn(final Brain b, final int angle) {
+    public static double startTurn(final Brain b, final int angle) {
+        final double[] time = new double[1];
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -27,12 +28,12 @@ public class TurnThread {
                     int[] wheelSpeeds = b.computeWheelSpeed(DEFAULT_TURN_RADIUS, angle);
                     double speed = (wheelSpeeds[0] + wheelSpeeds[1]) / 2;
                     double distance = (Math.PI * DEFAULT_TURN_RADIUS * angle) / 180;
-                    double time = (distance / speed);
+                    time[0] = (distance / speed);
                     b.getDashboard().log("Speeds:   " + Arrays.toString(wheelSpeeds) +"cm/s");
-                    b.getDashboard().log("Time:     " + time + "s");
+                    b.getDashboard().log("Time:     " + time[0] + "s");
                     b.getDashboard().log("Distance: " + distance+"cm");
                     b.driveDirect(wheelSpeeds[0], wheelSpeeds[1]);
-                    SystemClock.sleep((int) (time * 10000));
+                    SystemClock.sleep((int) (time[0] *= 10000));
                 } catch (ConnectionLostException cle) {
                     TurnThread.kill();
                 } finally {
@@ -43,6 +44,7 @@ public class TurnThread {
             }
         });
         t.start();
+        return time[0];
     }
 
     private static void kill() {

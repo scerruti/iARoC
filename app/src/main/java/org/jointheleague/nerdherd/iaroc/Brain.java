@@ -44,8 +44,8 @@ public class Brain extends IRobotCreateAdapter {
     }
 
     public int[] computeWheelSpeed(int turnRadius, int angleOfTurn) {
-        double leftWheelSpeed = 500;
-        double rightWheelSpeed = 500;
+        double leftWheelSpeed = 250;
+        double rightWheelSpeed = 250;
 
         double a = turnRadius + DISTANCE_TO_CENTER;
         double b = turnRadius - DISTANCE_TO_CENTER;
@@ -63,7 +63,7 @@ public class Brain extends IRobotCreateAdapter {
             aSpeed = 500 * aSpeed / bSpeed;
             bSpeed = 500;
         }
-        return new int[]{(int) aSpeed, (int) bSpeed};
+        return new int[]{(int) bSpeed, (int) aSpeed};
     }
 
 
