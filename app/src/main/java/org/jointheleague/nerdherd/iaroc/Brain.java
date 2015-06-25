@@ -33,6 +33,8 @@ public class Brain extends IRobotCreateAdapter {
             throws ConnectionLostException {
         super(create);
         frontDistanceListeners = new ArrayList<>();
+        leftDistanceListeners = new ArrayList<>();
+        rightDistanceListeners = new ArrayList<>();
         sonar = new UltraSonicSensors(ioio);
         this.dashboard = dashboard;
     }
@@ -69,7 +71,7 @@ public class Brain extends IRobotCreateAdapter {
 
     /* This method is called repeatedly. */
     public void loop() throws ConnectionLostException {
-        dashboard.log("Loop");
+            dashboard.log("Loop");
 //        int[] speed = computeWheelSpeed(100, 90);
 //        driveDirect(speed[0], speed[1]);
 //        try {
@@ -134,7 +136,10 @@ public class Brain extends IRobotCreateAdapter {
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
+        dashboard.log("Before Read");
+
         readSensors(SENSORS_BUMPS_AND_WHEEL_DROPS);
+        dashboard.log("After Read");
 
         if (isBumpRight() != isBumpRight) {
                 isBumpRight = isBumpRight();
@@ -144,7 +149,6 @@ public class Brain extends IRobotCreateAdapter {
                     dsl.frontDistanceListener(isBumpLeft, isBumpRight);
                 }
         }
-
         try {
             sonar.read();
             if (sonar.getLeftDistance() != leftDistance)
@@ -174,8 +178,6 @@ public class Brain extends IRobotCreateAdapter {
             dashboard.log("Interruption!");
             e.printStackTrace();
         }
-
-        driveDirect(lws, rws);
     }
 
     protected void driveForward(int a, int b) {
@@ -200,6 +202,26 @@ public class Brain extends IRobotCreateAdapter {
     public void unregisterFrontDistanceListener(DistanceSensorListener frontDistanceListener) {
         this.frontDistanceListeners.remove(frontDistanceListener);
         dashboard.log("Unregistered front distance listener");
+    }
+
+    public void registerLeftDistanceListener(DistanceSensorListener leftDistanceListener) {
+        this.leftDistanceListeners.add(leftDistanceListener);
+        dashboard.log("Registered left distance listener");
+    }
+
+    public void unregisterLeftDistanceListener(DistanceSensorListener leftDistanceListener) {
+        this.leftDistanceListeners.remove(leftDistanceListener);
+        dashboard.log("Unregistered left distance listener");
+    }
+
+    public void registerRightDistanceListener(DistanceSensorListener rightDistanceListener) {
+        this.rightDistanceListeners.add(rightDistanceListener);
+        dashboard.log("Registered right distance listener");
+    }
+
+    public void unregisterRightDistanceListener(DistanceSensorListener rightDistanceListener) {
+        this.rightDistanceListeners.remove(rightDistanceListener);
+        dashboard.log("Unregistered right distance listener");
     }
 
     public void hitWall(String event) {
