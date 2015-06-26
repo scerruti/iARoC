@@ -12,6 +12,7 @@ import ioio.lib.util.android.IOIOActivity;
 
 import java.util.Locale;
 
+import org.jointheleague.nerdherd.iaroc.goldrush.GoldRush;
 import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnThread;
 import org.wintrisstech.irobot.ioio.IRobotCreateInterface;
 import org.wintrisstech.irobot.ioio.SimpleIRobotCreate;
@@ -124,7 +125,12 @@ public class Dashboard extends IOIOActivity implements
         do90dturn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TurnThread.startTurn(kalina, 90);
+                GoldRush g = new GoldRush(Dashboard.this);
+                try {
+                    g.runMission();
+                } catch (ConnectionLostException ignored) {
+
+                }
             }
         });
         slider = (SeekBar) findViewById(R.id.angleSeekBar);

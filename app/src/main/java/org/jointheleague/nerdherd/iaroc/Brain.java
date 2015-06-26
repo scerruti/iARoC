@@ -68,7 +68,7 @@ public class Brain extends IRobotCreateAdapter {
             aSpeed = 500 * aSpeed / bSpeed;
             bSpeed = 500;
         }
-        return new int[]{(int) aSpeed, (int) bSpeed};
+        return new int[]{(int) bSpeed, (int) aSpeed};
     }
 
 
@@ -143,8 +143,51 @@ public class Brain extends IRobotCreateAdapter {
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
+        readSensors(SENSORS_BUMPS_AND_WHEEL_DROPS);
 
+        if (isBumpRight() != isBumpRight) {
+                isBumpRight = isBumpRight();
+                isBumpLeft = isBumpLeft();
+                for (DistanceSensorListener dsl: frontDistanceListeners)
+                {
+                    dsl.frontDistanceListener(isBumpLeft, isBumpRight);
+                }
+        }
+        try {
+            sonar.read();
+            if (sonar.getLeftDistance() != leftDistance)
+            {
+                leftDistance = sonar.getLeftDistance();
+                for (DistanceSensorListener dsl: leftDistanceListeners)
+                {
+                    dsl.leftDistanceListener(leftDistance);
+                }
+            }
+        } catch (InterruptedException e) {
+            dashboard.log("Interruption!");
+            e.printStackTrace();
+        }
 
+        try {
+            sonar.read();
+            if (sonar.getRightDistance() != rightDistance)
+            {
+                rightDistance = sonar.getRightDistance();
+                for (DistanceSensorListener dsl: rightDistanceListeners)
+                {
+                    dsl.rightDistanceListener(rightDistance);
+                }
+            }
+        } catch (InterruptedException e) {
+            dashboard.log("Interruption!");
+            e.printStackTrace();
+        }
+
+        if (loopActions != null) {
+            for (LoopAction action : loopActions) {
+                action.doAction();
+            }
+        }
     }
 
     protected void driveForward(int a, int b) {
@@ -164,10 +207,12 @@ public class Brain extends IRobotCreateAdapter {
 
     public void registerFrontDistanceListener(DistanceSensorListener frontDistanceListener) {
         this.frontDistanceListeners.add(frontDistanceListener);
+        dashboard.log("Registered front distance listener");
     }
 
     public void unregisterFrontDistanceListener(DistanceSensorListener frontDistanceListener) {
         this.frontDistanceListeners.remove(frontDistanceListener);
+        dashboard.log("Unregistered front distance listener");
     }
 
     public void registerSideDistanceListener(DistanceSensorListener sideDistanceListener) {
