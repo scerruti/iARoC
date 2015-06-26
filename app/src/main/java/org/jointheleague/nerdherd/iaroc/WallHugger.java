@@ -53,4 +53,9 @@ public class WallHugger implements DistanceSensorListener {
     public void rightDistanceListener(int rightDistance) {
         this.rightDistance = rightDistance;
     }
+
+    @Override
+    public void sideDistanceListener(int leftDistance, int rightDistance) {
+
+    }
 }
