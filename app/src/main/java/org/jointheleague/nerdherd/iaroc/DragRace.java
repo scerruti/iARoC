@@ -70,4 +70,9 @@ public class DragRace extends Mission implements DistanceSensorListener {
             }
         }
     }
+
+    @Override
+    public void sideDistanceListener(int leftDistance, int rightDistance) {
+
+    }
 }

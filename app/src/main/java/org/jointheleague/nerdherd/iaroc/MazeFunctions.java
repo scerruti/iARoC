@@ -2,6 +2,7 @@ package org.jointheleague.nerdherd.iaroc;
 
 import android.os.SystemClock;
 
+import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnEndHandler;
 import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnThread;
 
 /**
@@ -9,8 +10,9 @@ import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnThread;
  */
 public class MazeFunctions {
     public static final int SQUARE_DIST = 68;
-    public static final int MAX_WHEEL_SPEED = 500;
+    public static final int MAX_WHEEL_SPEED = 250;
     public static final int TIME = time(SQUARE_DIST, MAX_WHEEL_SPEED);
+    private static final int RADIUS = 28;
     protected Dashboard dashboard;
 
     public MazeFunctions(Dashboard dashboard) {
@@ -37,46 +39,43 @@ public class MazeFunctions {
         return leftDistance < 20;
     }
 
-    public boolean isWallFront() {
-        boolean isWallFront = false;
-        driveHalfSquare();
-        if (dashboard.getBrain().isBumpLeft() && dashboard.getBrain().isBumpRight()) {
-            driveBackHalfSquare();
-            isWallFront = true;
+    public boolean isWallFront(int frontDistance) {
+        //return frontDistance < 20;
+        if (frontDistance == -1) {
+            return false;
         }
-        return isWallFront;
+        if (frontDistance == 0) {
+            return true;
+        }
+        if (frontDistance == 1) {
+            return false;
+        }
+        if (frontDistance == 1) {
+            return true;
+        }
+        if (frontDistance == 1) {
+            return false;
+        }
+        if (frontDistance == 1) {
+            return false;
+        }
+        return false;
     }
 
-    public void turnRight() {
-        TurnThread.startTurn(dashboard.getBrain(), 90, false);
-        dashboard.log("Turning right");
+    public void turnRight(TurnEndHandler turnEndHandler) {
+        TurnThread.startTurn(dashboard.getBrain(), 90, true, RADIUS, turnEndHandler);
     }
 
-    public void turnLeft() {
-        TurnThread.startTurn(dashboard.getBrain(), -90, false);
-        dashboard.log("Turning left");
+    public void turnLeft(TurnEndHandler turnEndHandler) {
+        TurnThread.startTurn(dashboard.getBrain(), -90, true, RADIUS, turnEndHandler);
     }
 
-    public void turnAround() {
-        TurnThread.startTurnWithRadius(dashboard.getBrain(), 180, false, 0);
+    public void turnAround(TurnEndHandler turnEndHandler) {
+        TurnThread.startTurn(dashboard.getBrain(), 180, false, 0, turnEndHandler);
     }
 
     public void driveSquare() {
         dashboard.getBrain().driveForward(MAX_WHEEL_SPEED, MAX_WHEEL_SPEED);
         SystemClock.sleep(TIME);
-//        dashboard.getBrain().driveForward(0, 0);
-        dashboard.log("Driving forward a square");
-    }
-
-    public void driveHalfSquare() {
-        dashboard.getBrain().driveForward(MAX_WHEEL_SPEED, MAX_WHEEL_SPEED);
-        SystemClock.sleep(TIME / 2);
-//        dashboard.getBrain().driveForward(0, 0);
-    }
-
-    public void driveBackHalfSquare() {
-        dashboard.getBrain().driveForward(-MAX_WHEEL_SPEED, -MAX_WHEEL_SPEED);
-        SystemClock.sleep(TIME / 2);
-//        dashboard.getBrain().driveForward(0, 0);
     }
 }

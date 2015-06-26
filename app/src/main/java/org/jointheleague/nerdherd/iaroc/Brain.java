@@ -20,13 +20,14 @@ public class Brain extends IRobotCreateAdapter {
     ArrayList<DistanceSensorListener> frontDistanceListeners;
     ArrayList<DistanceSensorListener> leftDistanceListeners;
     ArrayList<DistanceSensorListener> rightDistanceListeners;
+    ArrayList<DistanceSensorListener> sideDistanceListeners;
     ArrayList<LoopAction> loopActions;
     private int frontDistance = -1;
     private boolean isBumpLeft = false;
     private boolean isBumpRight = false;
     private int leftDistance = -1;
     private int rightDistance = -1;
-    private int MAX_SPEED = 500;
+    private int MAX_SPEED = 250;
     public int lws = MAX_SPEED;
     public int rws = MAX_SPEED;
 
@@ -55,9 +56,7 @@ public class Brain extends IRobotCreateAdapter {
         double arcRobot = turnRadius * angleOfTurn * Math.PI / 180;
         double arcA = a * angleOfTurn * Math.PI / 180;
         double arcB = b * angleOfTurn * Math.PI / 180;
-        dashboard.log("arcA = " + Double.toString(arcA) +
-                "arc B = " + Double.toString(arcB) +
-                "arc Robot = " + Double.toString(arcRobot));
+        dashboard.log("Computing wheel speed");
         double time = arcRobot / ((rightWheelSpeed + leftWheelSpeed) / 2);
         double aSpeed = arcA / time;
         double bSpeed = arcB / time;
@@ -74,17 +73,16 @@ public class Brain extends IRobotCreateAdapter {
 
     /* This method is called repeatedly. */
     public void loop() throws ConnectionLostException {
-        dashboard.log("Loop");
 //        int[] speed = computeWheelSpeed(100, 90);
 //        driveDirect(speed[0], speed[1]);
-//        try {
-//            dashboard.log("BEFORE SONAR READ");
-//            sonar.read();
-//            dashboard.log("AFTER SONAR READ");
-//        } catch (InterruptedException e) {
-//            dashboard.log(e.getMessage());
-//            return;
-//        }
+        boolean sonarRead = false;
+        try {
+            sonar.read();
+            sonarRead = true;
+        } catch (InterruptedException e) {
+            dashboard.log(e.getMessage());
+            return;
+        }
 //        dashboard.log("BEFORE MATH");
 //        int[] x1y1 = getCoordinate(theta+90,sonar.getLeftDistance());
 //        int[] x2y2 = getCoordinate(theta-90,sonar.getRightDistance());
@@ -149,9 +147,16 @@ public class Brain extends IRobotCreateAdapter {
                     dsl.frontDistanceListener(isBumpLeft, isBumpRight);
                 }
         }
-        try {
-            sonar.read();
-            if (sonar.getLeftDistance() != leftDistance)
+        if (sonarRead) {
+            if (sonar.getLeftDistance() != leftDistance || sonar.getRightDistance() != rightDistance) {
+                if (sideDistanceListeners != null) {
+                    for (DistanceSensorListener dsl : sideDistanceListeners) {
+                        dsl.sideDistanceListener(sonar.getLeftDistance(), sonar.getRightDistance());
+                    }
+                }
+
+            }
+             if (sonar.getLeftDistance() != leftDistance)
             {
                 leftDistance = sonar.getLeftDistance();
                 for (DistanceSensorListener dsl: leftDistanceListeners)
@@ -159,9 +164,7 @@ public class Brain extends IRobotCreateAdapter {
                     dsl.leftDistanceListener(leftDistance);
                 }
             }
-        } catch (InterruptedException e) {
-            dashboard.log("Interruption!");
-            e.printStackTrace();
+
         }
 
         try {
@@ -223,6 +226,13 @@ public class Brain extends IRobotCreateAdapter {
 
     public void unregisterRightDistanceListener(DistanceSensorListener rightDistanceListener) {
         this.rightDistanceListeners.remove(rightDistanceListener);
+    }
+
+    public void registerSideDistanceListener(DistanceSensorListener sideDistanceListener) {
+        if(this.sideDistanceListeners == null) {
+            this.sideDistanceListeners = new ArrayList<>();
+        }
+        this.sideDistanceListeners.add(sideDistanceListener);
     }
 
     public void hitWall(String event) {

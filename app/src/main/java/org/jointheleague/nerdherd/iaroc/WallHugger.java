@@ -1,6 +1,7 @@
 package org.jointheleague.nerdherd.iaroc;
 
 import org.jointheleague.nerdherd.iaroc.DistanceSensorListener;
+import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnEndHandler;
 
 /**
  * Created by RussB on 6/24/15.
@@ -12,6 +13,7 @@ public class WallHugger implements DistanceSensorListener {
     protected int rightDistance;
     protected MazeFunctions mazeFunctions;
     protected Dashboard dashboard;
+    protected int times = -1;
 
     public WallHugger(Dashboard dashboard) {
         this.dashboard = dashboard;
@@ -22,19 +24,32 @@ public class WallHugger implements DistanceSensorListener {
         //dashboard.speak("WallHugger Created");
     }
 
-    public void rightWallHugger() {
+    public boolean rightWallHugger(TurnEndHandler turnEndHandler) {
         //mazeFunctions.driveSquare();
+        boolean turning = false;
+        dashboard.log("Right: " + rightDistance + " Left: " + leftDistance + " Times: " + times);
+        dashboard.log("Is wall right: " + mazeFunctions.isWallRight(rightDistance) + "  Is wall left: " + mazeFunctions.isWallLeft(leftDistance) + "  Is wall front: " + mazeFunctions.isWallFront(times));
         if (!mazeFunctions.isWallRight(rightDistance)) {
             dashboard.log("Turning right");
-            mazeFunctions.turnRight();
+            mazeFunctions.turnRight(turnEndHandler);
+            turning = true;
         }
-        else if (mazeFunctions.isWallFront()) {
-            if (mazeFunctions.isWallLeft(leftDistance))
-            {
-                mazeFunctions.turnAround();
-            }
+        else if (!mazeFunctions.isWallFront(times)) {
+            dashboard.log("Going forward");
+            mazeFunctions.driveSquare();
         }
+        else if (!mazeFunctions.isWallLeft(leftDistance)) {
+            dashboard.log("Turning left");
+            mazeFunctions.turnLeft(turnEndHandler);
+            turning = true;
+        }
+        else {
+            mazeFunctions.turnAround(turnEndHandler);
+            turning = true;
+        }
+        times++;
         //dashboard.log("Is there a wall?" + mazeFunctions.isWallFront());
+        return turning;
     }
 
     public void leftWallHugger() {
@@ -52,5 +67,10 @@ public class WallHugger implements DistanceSensorListener {
 
     public void rightDistanceListener(int rightDistance) {
         this.rightDistance = rightDistance;
+    }
+
+    @Override
+    public void sideDistanceListener(int leftDistance, int rightDistance) {
+
     }
 }
