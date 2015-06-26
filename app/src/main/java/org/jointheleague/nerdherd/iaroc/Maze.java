@@ -28,6 +28,11 @@ public class Maze implements DistanceSensorListener, LoopAction {
     }
 
     @Override
+    public void sideDistanceListener(int leftDistance, int rightDistance) {
+
+    }
+
+    @Override
     public void doAction() {
         wallHugger.rightWallHugger();
     }
