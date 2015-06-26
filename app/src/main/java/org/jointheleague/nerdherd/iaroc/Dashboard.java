@@ -83,6 +83,10 @@ public class Dashboard extends IOIOActivity implements
     public Button do90dturn;
     private SeekBar slider;
     private int turnAngle;
+    private Button dragRace;
+    private Button maze;
+    private Button goldRush;
+    private Button mazeSolve;
 
     public Brain getBrain() {
         return kalina;
@@ -121,37 +125,70 @@ public class Dashboard extends IOIOActivity implements
         mText = (TextView) findViewById(R.id.text);
         scroller = (ScrollView) findViewById(R.id.scroller);
 
-        do90dturn = (Button) findViewById(R.id.turn90Degs);
-        do90dturn.setOnClickListener(new View.OnClickListener() {
+        dragRace = (Button) findViewById(R.id.dragRaceButton);
+        maze = (Button) findViewById(R.id.mazeButton);
+        goldRush = (Button) findViewById(R.id.goldRushButton);
+        mazeSolve = (Button) findViewById(R.id.solveTheMaze);
+        dragRace.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoldRush g = new GoldRush(Dashboard.this);
-                try {
-                    g.runMission();
-                } catch (ConnectionLostException ignored) {
-
-                }
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        DragRace dragRace = new DragRace(Dashboard.this);
+                        dragRace.runMission();
+                    }
+                });
+                t.start();
             }
         });
-        slider = (SeekBar) findViewById(R.id.angleSeekBar);
-        slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        maze.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                Dashboard.this.turnAngle = progress - 180;
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
+            public void onClick(View v) {
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Maze maze = new Maze(Dashboard.this);
+                        while(true) {
+                            maze.doAction();
+                        }
+                    }
+                });
+                t.start();
             }
         });
+        goldRush.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        GoldRush goldRush = new GoldRush(Dashboard.this);
+                        try {
+                            goldRush.runMission();
+                        } catch (ConnectionLostException ignored) {
+
+                        }
+                    }
+                });
+                t.start();
+            }
+        });
+        mazeSolve.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Maze maze = new Maze(Dashboard.this);
+                        maze.solve();
+                    }
+                });
+                t.start();
+            }
+        });
+
         log(getString(R.string.wait_ioio));
-
     }
 
     @Override
@@ -285,8 +322,6 @@ public class Dashboard extends IOIOActivity implements
 				 */
                 kalina = new Brain(ioio, iRobotCreate, Dashboard.this);
                 kalina.initialize();
-                DragRace dr = new DragRace(Dashboard.this);
-                dr.runMission();
             }
 
             public void loop() throws ConnectionLostException,

@@ -75,4 +75,7 @@ public class Maze implements DistanceSensorListener, LoopAction, TurnEndHandler 
     public void onTurnEnd() {
         turning = false;
     }
+
+    public void solve() {
+    }
 }
