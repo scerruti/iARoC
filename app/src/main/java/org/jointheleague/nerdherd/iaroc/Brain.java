@@ -50,14 +50,13 @@ public class Brain extends IRobotCreateAdapter {
     public int[] computeWheelSpeed(int turnRadius, int angleOfTurn) {
         double leftWheelSpeed = 250;
         double rightWheelSpeed = 250;
+
         double a = turnRadius + DISTANCE_TO_CENTER;
         double b = turnRadius - DISTANCE_TO_CENTER;
-        double arcRobot = turnRadius * angleOfTurn * Math.PI / 180;
-        double arcA = a * angleOfTurn * Math.PI / 180;
-        double arcB = b * angleOfTurn * Math.PI / 180;
-        dashboard.log("arcA = " + Double.toString(arcA) +
-                "arc B = " + Double.toString(arcB) +
-                "arc Robot = " + Double.toString(arcRobot));
+        double arcRobot = turnRadius * angleOfTurn * 180 / Math.PI;
+        double arcA = Math.round(a * angleOfTurn * 180 / Math.PI);
+        double arcB = Math.round(b * angleOfTurn * 180 / Math.PI);
+
         double time = arcRobot / ((rightWheelSpeed + leftWheelSpeed) / 2);
         double aSpeed = arcA / time;
         double bSpeed = arcB / time;
@@ -68,7 +67,7 @@ public class Brain extends IRobotCreateAdapter {
             aSpeed = 500 * aSpeed / bSpeed;
             bSpeed = 500;
         }
-        return new int[]{(int) aSpeed, (int) bSpeed};
+        return new int[]{(int) bSpeed, (int) aSpeed};
     }
 
 
@@ -149,6 +148,7 @@ public class Brain extends IRobotCreateAdapter {
                     dsl.frontDistanceListener(isBumpLeft, isBumpRight);
                 }
         }
+
         try {
             sonar.read();
             if (sonar.getLeftDistance() != leftDistance)
@@ -203,10 +203,12 @@ public class Brain extends IRobotCreateAdapter {
 
     public void registerFrontDistanceListener(DistanceSensorListener frontDistanceListener) {
         this.frontDistanceListeners.add(frontDistanceListener);
+        dashboard.log("Registered front distance listener");
     }
 
     public void unregisterFrontDistanceListener(DistanceSensorListener frontDistanceListener) {
         this.frontDistanceListeners.remove(frontDistanceListener);
+        dashboard.log("Unregistered front distance listener");
     }
 
     public void registerLeftDistanceListener(DistanceSensorListener leftDistanceListener) {
