@@ -2,6 +2,7 @@ package org.jointheleague.nerdherd.iaroc;
 
 import android.os.SystemClock;
 
+import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnThread;
 import org.jointheleague.nerdherd.sensors.UltraSonicSensors;
 import org.wintrisstech.irobot.ioio.IRobotCreateAdapter;
 import org.wintrisstech.irobot.ioio.IRobotCreateInterface;
@@ -15,10 +16,11 @@ public class Brain extends IRobotCreateAdapter {
     private final Dashboard dashboard;
     public UltraSonicSensors sonar;
     int theta = 0;
-    public static final int DISTANCE_TO_CENTER = 30;
+    public static final double DISTANCE_TO_CENTER = 13.335;
     ArrayList<DistanceSensorListener> frontDistanceListeners;
     ArrayList<DistanceSensorListener> leftDistanceListeners;
     ArrayList<DistanceSensorListener> rightDistanceListeners;
+    ArrayList<LoopAction> loopActions;
     private int frontDistance = -1;
     private boolean isBumpLeft = false;
     private boolean isBumpRight = false;
@@ -33,6 +35,8 @@ public class Brain extends IRobotCreateAdapter {
             throws ConnectionLostException {
         super(create);
         frontDistanceListeners = new ArrayList<>();
+        leftDistanceListeners = new ArrayList<>();
+        rightDistanceListeners = new ArrayList<>();
         sonar = new UltraSonicSensors(ioio);
         this.dashboard = dashboard;
     }
@@ -175,11 +179,16 @@ public class Brain extends IRobotCreateAdapter {
             e.printStackTrace();
         }
 
-        driveDirect(lws, rws);
+        if (loopActions != null) {
+            for (LoopAction action : loopActions) {
+                action.doAction();
+            }
+        }
     }
 
     protected void driveForward(int a, int b) {
         try {
+            dashboard.log("Driving forward, " + a + " " + b);
             driveDirect(a, b);
         } catch (ConnectionLostException e) {
             e.printStackTrace();
@@ -202,6 +211,22 @@ public class Brain extends IRobotCreateAdapter {
         dashboard.log("Unregistered front distance listener");
     }
 
+    public void registerLeftDistanceListener(DistanceSensorListener leftDistanceListener) {
+        this.leftDistanceListeners.add(leftDistanceListener);
+    }
+
+    public void unregisterLeftDistanceListener(DistanceSensorListener leftDistanceListener) {
+        this.leftDistanceListeners.remove(leftDistanceListener);
+    }
+
+    public void registerRightDistanceListener(DistanceSensorListener rightDistanceListener) {
+        this.rightDistanceListeners.add(rightDistanceListener);
+    }
+
+    public void unregisterRightDistanceListener(DistanceSensorListener rightDistanceListener) {
+        this.rightDistanceListeners.remove(rightDistanceListener);
+    }
+
     public void hitWall(String event) {
         if (event.equals("maze")) {
             try {
@@ -215,7 +240,31 @@ public class Brain extends IRobotCreateAdapter {
         }
     }
 
+    private void printSonar() throws ConnectionLostException {
+//        dashboard.log("Top of loop");
+        try {
+            sonar.read();
+//            dashboard.log("Sonar read");
+        } catch (InterruptedException e) {
+//            dashboard.log("ERROR: "+e.getLocalizedMessage());
+        }
+//        dashboard.log("After Sonar Read");
+    }
+
+    public double getAngleOffset(double width, double l, double r) {
+        double ratio = width / (l + r + 2 * DISTANCE_TO_CENTER);
+        double offsetRadians = Math.asin(ratio);
+        return 90 - Math.toDegrees(offsetRadians);
+    }
+
     public Dashboard getDashboard() {
         return dashboard;
+    }
+
+    public void registerLoopAction(LoopAction action) {
+        if (loopActions == null) {
+            loopActions = new ArrayList<>();
+        }
+        loopActions.add(action);
     }
 }
