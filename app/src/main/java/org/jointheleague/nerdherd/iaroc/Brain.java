@@ -68,7 +68,7 @@ public class Brain extends IRobotCreateAdapter {
             aSpeed = 500 * aSpeed / bSpeed;
             bSpeed = 500;
         }
-        return new int[]{(int) bSpeed, (int) aSpeed};
+        return new int[]{(int) aSpeed, (int) bSpeed};
     }
 
 
