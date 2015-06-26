@@ -9,9 +9,9 @@ public class Maze implements DistanceSensorListener, LoopAction, TurnEndHandler 
     private static final int MAZE_WALL_DISTANCE = 20;
     protected MazeFunctions mazeFunctions;
     WallHugger wallHugger;
-    boolean isWallLeft;
-    boolean isWallRight;
-    boolean isWallFront;
+    boolean wallLeft;
+    boolean wallRight;
+    boolean wallFront;
     boolean isWallDataValid = false;
     protected Dashboard dashboard;
     private boolean turning = false;
@@ -19,52 +19,52 @@ public class Maze implements DistanceSensorListener, LoopAction, TurnEndHandler 
     public Maze(Dashboard dashboard) {
         this.dashboard = dashboard;
         this.wallHugger = new WallHugger(dashboard, this);
-        dashboard.getBrain().registerSideDistanceListener(this);
-        mazeFunctions = new MazeFunctions(dashboard);
+        dashboard.getBrain().registerDistanceListener(this);
+        mazeFunctions = new MazeFunctions(dashboard, this);
         dashboard.getBrain().registerLoopAction(this);
     }
 
-    public void frontDistanceListener(boolean isBumpLeft, boolean isBumpRight) {
+    public void solve() {
 
     }
 
-    @Override
-    public void leftDistanceListener(int leftDistance) {
-
-    }
-
-    @Override
-    public void rightDistanceListener(int rightDistance) {
-
-    }
-
-    public void sideDistanceListener(int leftDistance, int rightDistance) {
+    public void distanceListener(int leftDistance, int rightDistance, boolean isBumpLeft, boolean isBumpRight) {
         if (turning) {
             return;
         }
         boolean actionNeeded = false;
-        if (isWallLeft && leftDistance > MAZE_WALL_DISTANCE) {
-            isWallLeft = false;
+        if (wallLeft && leftDistance > MAZE_WALL_DISTANCE) {
+            wallLeft = false;
             actionNeeded = true;
         }
-        else if(!isWallLeft && leftDistance < MAZE_WALL_DISTANCE) {
-            isWallLeft = true;
+        else if(!wallLeft && leftDistance < MAZE_WALL_DISTANCE) {
+            wallLeft = true;
             actionNeeded = true;
         }
 
-        if (isWallRight && rightDistance > MAZE_WALL_DISTANCE) {
-            isWallRight = false;
+        if (wallRight && rightDistance > MAZE_WALL_DISTANCE) {
+            wallRight = false;
             actionNeeded = true;
         }
-        else if(!isWallRight && rightDistance < MAZE_WALL_DISTANCE) {
-            isWallRight = true;
+        else if(!wallRight && rightDistance < MAZE_WALL_DISTANCE) {
+            wallRight = true;
             actionNeeded = true;
+        }
+
+        if (isBumpLeft && isBumpRight) {
+            wallFront = true;
+            actionNeeded = true;
+        }
+        else {
+            wallFront = false;
         }
 
         if (actionNeeded && isWallDataValid) {
             doAction();
         }
         isWallDataValid = true;
+
+        dashboard.log("Wall left: " + wallLeft + "  Wall right: " + wallRight + "  Wall front: " + wallFront);
     }
 
     @Override
@@ -83,27 +83,27 @@ public class Maze implements DistanceSensorListener, LoopAction, TurnEndHandler 
     }
 
     public boolean isWallLeft() {
-        return isWallLeft;
+        return wallLeft;
     }
 
     public void setIsWallLeft(boolean isWallLeft) {
-        this.isWallLeft = isWallLeft;
+        this.wallLeft = isWallLeft;
     }
 
     public boolean isWallRight() {
-        return isWallRight;
+        return wallRight;
     }
 
     public void setIsWallRight(boolean isWallRight) {
-        this.isWallRight = isWallRight;
+        this.wallRight = isWallRight;
     }
 
     public boolean isWallFront() {
-        return isWallFront;
+        return wallFront;
     }
 
     public void setIsWallFront(boolean isWallFront) {
-        this.isWallFront = isWallFront;
+        this.wallFront = isWallFront;
     }
 
     public boolean isWallDataValid() {

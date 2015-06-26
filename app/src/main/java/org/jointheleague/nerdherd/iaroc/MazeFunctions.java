@@ -14,9 +14,11 @@ public class MazeFunctions {
     public static final int TIME = time(SQUARE_DIST, MAX_WHEEL_SPEED);
     private static final int RADIUS = 28;
     protected Dashboard dashboard;
+    protected Maze maze;
 
-    public MazeFunctions(Dashboard dashboard) {
+    public MazeFunctions(Dashboard dashboard, Maze maze) {
         this.dashboard = dashboard;
+        this.maze = maze;
     }
 
     public static int time(int distance, int speed) {
@@ -76,6 +78,11 @@ public class MazeFunctions {
 
     public void driveSquare() {
         dashboard.getBrain().driveForward(MAX_WHEEL_SPEED, MAX_WHEEL_SPEED);
-        SystemClock.sleep(TIME);
+    }
+
+    public void driveBackHalfSquare() {
+        dashboard.getBrain().driveForward(-MAX_WHEEL_SPEED, -MAX_WHEEL_SPEED);
+        SystemClock.sleep(time(SQUARE_DIST/2, MAX_WHEEL_SPEED));
+        dashboard.getBrain().driveForward(0, 0);
     }
 }

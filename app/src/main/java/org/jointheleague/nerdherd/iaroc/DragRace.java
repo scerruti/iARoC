@@ -2,8 +2,6 @@ package org.jointheleague.nerdherd.iaroc;
 
 import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnThread;
 
-import ioio.lib.api.exception.ConnectionLostException;
-
 /**
  * Created by RussB on 6/22/15.
  */
@@ -18,8 +16,7 @@ public class DragRace extends Mission implements DistanceSensorListener {
     public DragRace(Dashboard dashboard)
     {
         super(dashboard);
-        dashboard.getBrain().registerFrontDistanceListener(this);
-        dashboard.getBrain().registerSideDistanceListener(this);
+        dashboard.getBrain().registerDistanceListener(this);
     }
 
     @Override
@@ -39,31 +36,8 @@ public class DragRace extends Mission implements DistanceSensorListener {
         dashboard.log("Part two");
     }
 
-    public void frontDistanceListener(boolean leftBump, boolean rightBump) {
-        dashboard.log("Stuff");
-        //if(frontDistance < FINISH_DISTANCE)
-        if (leftBump && rightBump)
-        {
-            dashboard.log("Time to freak out");
-            dashboard.getBrain().unregisterFrontDistanceListener(this);
-            partTwo();
-        }
-    }
-
-    public void leftDistanceListener(int leftDistance)
-    {
-        dashboard.log("Left!");
-
-    }
-
-    public void rightDistanceListener(int rightDistance)
-    {
-        dashboard.log("Right!");
-
-    }
-
     @Override
-    public void sideDistanceListener(int leftDistance, int rightDistance) {
+    public void distanceListener(int leftDistance, int rightDistance, boolean isBumpLeft, boolean isBumpRight) {
         double theta = dashboard.getBrain().getAngleOffset(COURSE_WIDTH, leftDistance, rightDistance);
         dashboard.log("Offset Angle = " + theta);
         if (!isAngleFixing) {
