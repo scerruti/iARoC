@@ -18,9 +18,10 @@ public class Maze implements DistanceSensorListener, LoopAction, TurnEndHandler 
 
     public Maze(Dashboard dashboard) {
         this.dashboard = dashboard;
-        this.wallHugger = new WallHugger(dashboard);
+        this.wallHugger = new WallHugger(dashboard, this);
         dashboard.getBrain().registerSideDistanceListener(this);
         mazeFunctions = new MazeFunctions(dashboard);
+        dashboard.getBrain().registerLoopAction(this);
     }
 
     public void frontDistanceListener(boolean isBumpLeft, boolean isBumpRight) {
@@ -68,11 +69,48 @@ public class Maze implements DistanceSensorListener, LoopAction, TurnEndHandler 
 
     @Override
     public void doAction() {
+        dashboard.log("Do action");
         turning = wallHugger.rightWallHugger(this);
+        if (turning) {
+            dashboard.log("Turning");
+            isWallDataValid = false;
+        }
     }
 
     @Override
     public void onTurnEnd() {
         turning = false;
+    }
+
+    public boolean isWallLeft() {
+        return isWallLeft;
+    }
+
+    public void setIsWallLeft(boolean isWallLeft) {
+        this.isWallLeft = isWallLeft;
+    }
+
+    public boolean isWallRight() {
+        return isWallRight;
+    }
+
+    public void setIsWallRight(boolean isWallRight) {
+        this.isWallRight = isWallRight;
+    }
+
+    public boolean isWallFront() {
+        return isWallFront;
+    }
+
+    public void setIsWallFront(boolean isWallFront) {
+        this.isWallFront = isWallFront;
+    }
+
+    public boolean isWallDataValid() {
+        return isWallDataValid;
+    }
+
+    public void setIsWallDataValid(boolean isWallDataValid) {
+        this.isWallDataValid = isWallDataValid;
     }
 }

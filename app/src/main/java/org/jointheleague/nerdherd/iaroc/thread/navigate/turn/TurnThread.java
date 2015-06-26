@@ -17,7 +17,7 @@ public class TurnThread {
 
     protected static boolean alive = true;
 
-    public static final int DEFAULT_TURN_RADIUS = 28;
+    public static final int DEFAULT_TURN_RADIUS = 20;
 
     public static void startTurn(final Brain b, final int angle) {
         startTurn(b, angle, true);
