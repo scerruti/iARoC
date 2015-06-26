@@ -13,10 +13,12 @@ public class WallHugger implements DistanceSensorListener {
     protected int rightDistance;
     protected MazeFunctions mazeFunctions;
     protected Dashboard dashboard;
+    protected Maze maze;
     protected int times = -1;
 
-    public WallHugger(Dashboard dashboard) {
+    public WallHugger(Dashboard dashboard, Maze maze) {
         this.dashboard = dashboard;
+        this.maze = maze;
         mazeFunctions = new MazeFunctions(this.dashboard);
         dashboard.getBrain().registerLeftDistanceListener(this);
         dashboard.getBrain().registerRightDistanceListener(this);
@@ -27,9 +29,12 @@ public class WallHugger implements DistanceSensorListener {
     public boolean rightWallHugger(TurnEndHandler turnEndHandler) {
         //mazeFunctions.driveSquare();
         boolean turning = false;
+        if (!maze.isWallDataValid()) {
+            return true;
+        }
         dashboard.log("Right: " + rightDistance + " Left: " + leftDistance + " Times: " + times);
         dashboard.log("Is wall right: " + mazeFunctions.isWallRight(rightDistance) + "  Is wall left: " + mazeFunctions.isWallLeft(leftDistance) + "  Is wall front: " + mazeFunctions.isWallFront(times));
-        if (!mazeFunctions.isWallRight(rightDistance)) {
+        if (!maze.isWallRight()) {
             dashboard.log("Turning right");
             mazeFunctions.turnRight(turnEndHandler);
             turning = true;
@@ -38,7 +43,7 @@ public class WallHugger implements DistanceSensorListener {
             dashboard.log("Going forward");
             mazeFunctions.driveSquare();
         }
-        else if (!mazeFunctions.isWallLeft(leftDistance)) {
+        else if (!maze.isWallLeft()) {
             dashboard.log("Turning left");
             mazeFunctions.turnLeft(turnEndHandler);
             turning = true;

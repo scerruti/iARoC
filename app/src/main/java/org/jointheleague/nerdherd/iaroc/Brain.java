@@ -79,9 +79,7 @@ public class Brain extends IRobotCreateAdapter {
 //        int[] speed = computeWheelSpeed(100, 90);
 //        driveDirect(speed[0], speed[1]);
         try {
-            dashboard.log("BEFORE SONAR READ");
             sonar.read();
-            dashboard.log("AFTER SONAR READ");
             sonarRead = true;
         } catch (InterruptedException e) {
             dashboard.log(e.getMessage());
