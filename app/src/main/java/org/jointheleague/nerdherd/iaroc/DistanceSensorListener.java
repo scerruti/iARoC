@@ -7,6 +7,5 @@ public interface DistanceSensorListener {
     public void frontDistanceListener(boolean leftBump, boolean rightBump);
     public void leftDistanceListener(int leftDistance);
     public void rightDistanceListener(int rightDistance);
-
     public void sideDistanceListener(int leftDistance, int rightDistance);
 }

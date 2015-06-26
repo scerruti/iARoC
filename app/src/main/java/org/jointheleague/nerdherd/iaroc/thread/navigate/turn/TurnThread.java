@@ -4,6 +4,7 @@ import android.os.SystemClock;
 
 import org.jointheleague.nerdherd.iaroc.Brain;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import ioio.lib.api.exception.ConnectionLostException;
@@ -16,44 +17,17 @@ public class TurnThread {
 
     protected static boolean alive = true;
 
-    public static final int DEFAULT_TURN_RADIUS = 36;
+    public static final int DEFAULT_TURN_RADIUS = 28;
 
     public static void startTurn(final Brain b, final int angle) {
         startTurn(b, angle, true);
     }
 
     public static void startTurn(final Brain b, final int angle, boolean threaded) {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int[] curWS = new int[]{250, 250};
-                try {
-                    int[] wheelSpeeds = b.computeWheelSpeed(DEFAULT_TURN_RADIUS, angle);
-                    double speed = (wheelSpeeds[0] + wheelSpeeds[1]) / 2;
-                    double distance = ( DEFAULT_TURN_RADIUS * angle) * Math.PI / 180;
-                    double time = (distance / speed);
-                    b.getDashboard().log("Speeds:   " + Arrays.toString(wheelSpeeds) +"cm/s");
-                    b.getDashboard().log("Time:     " + time + "s");
-                    b.getDashboard().log("Distance: " + distance+"cm");
-                    b.driveDirect(wheelSpeeds[1], wheelSpeeds[0]);
-                    SystemClock.sleep((int) (time * 10000));
-                } catch (ConnectionLostException cle) {
-                    TurnThread.kill();
-                } finally {
-                    try {
-                        b.driveDirect(curWS[0], curWS[1]);
-                    } catch (ConnectionLostException ignored) {/*Impossible :)*/}
-                }
-            }
-        });
-        if(threaded)
-            t.start();
-        else
-            t.run();
+        startTurn(b, angle, threaded, DEFAULT_TURN_RADIUS, null);
     }
 
-
-    public static void startTurnWithRadius(final Brain b, final int angle, boolean threaded, final int radius) {
+    public static void startTurn(final Brain b, final int angle, boolean threaded, final int radius, final TurnEndHandler handler) {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -61,26 +35,32 @@ public class TurnThread {
                 try {
                     int[] wheelSpeeds = b.computeWheelSpeed(radius, angle);
                     double speed = (wheelSpeeds[0] + wheelSpeeds[1]) / 2;
-                    double distance = ( radius * angle) * Math.PI / 180;
+                    double distance = (radius * angle) * Math.PI / 180;
                     double time = (distance / speed);
-                    b.getDashboard().log("Speeds:   " + Arrays.toString(wheelSpeeds) +"cm/s");
-                    b.getDashboard().log("Time:     " + time + "s");
-                    b.getDashboard().log("Distance: " + distance+"cm");
                     b.driveDirect(wheelSpeeds[1], wheelSpeeds[0]);
                     SystemClock.sleep((int) (time * 10000));
+                    b.getDashboard().log("" + time * 10000);
                 } catch (ConnectionLostException cle) {
                     TurnThread.kill();
                 } finally {
                     try {
+                        alive = false;
+                        if(handler != null)
+                            handler.onTurnEnd();
                         b.driveDirect(curWS[0], curWS[1]);
                     } catch (ConnectionLostException ignored) {/*Impossible :)*/}
                 }
             }
         });
+        alive=true;
         if(threaded)
             t.start();
         else
             t.run();
+    }
+
+    public static boolean isAlive() {
+        return alive;
     }
 
     private static void kill() {

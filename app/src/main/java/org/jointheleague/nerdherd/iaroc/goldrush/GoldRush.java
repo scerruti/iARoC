@@ -43,6 +43,11 @@ public class GoldRush extends Mission implements DistanceSensorListener {
     }
 
     @Override
+    public void sideDistanceListener(int leftDistance, int rightDistance) {
+
+    }
+
+    @Override
     public void runMission() throws ConnectionLostException {
 //        for (int i = 0; i < 3; i++) {
 //            boolean doleft = left > right;
