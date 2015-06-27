@@ -109,6 +109,7 @@ public class Brain extends IRobotCreateAdapter {
             if ((sonar.getLeftDistance() != leftDistance || sonar.getRightDistance() != rightDistance)
                     && sideDistanceListeners != null)
             {
+                dashboard.log("L: "+leftDistance+ " R: "+rightDistance);
                 for (DistanceSensorListener dsl: sideDistanceListeners)
                 {
                     dsl.sideDistanceListener(sonar.getLeftDistance(), sonar.getRightDistance());
