@@ -9,9 +9,9 @@ import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnThread;
 public class DragRace extends Mission implements DistanceSensorListener, TurnEndHandler {
     private static final int FINISH_DISTANCE = 130;
     private static final int MAX_SPEED = 500;
-    private static final int BUFFER = 35;
-    private static final int ANGLE_BUFFER = 20;
-    private static final int COURSE_WIDTH = 132;
+    private static final int BUFFER = 40;
+    private static final int ANGLE_BUFFER = 7;
+    private static final int COURSE_WIDTH = 140;
     private static boolean isAngleFixing = false;
 
     public DragRace(Dashboard dashboard)

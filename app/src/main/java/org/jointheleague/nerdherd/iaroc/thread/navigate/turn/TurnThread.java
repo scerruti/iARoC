@@ -66,7 +66,4 @@ public class TurnThread {
     private static void kill() {
         alive = false;
     }
-
-    public static void startTurnWithRadius(Brain brain, int round, boolean b, int rightDistance) {
-    }
 }
