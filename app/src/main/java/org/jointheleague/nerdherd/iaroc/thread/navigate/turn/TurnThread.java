@@ -36,7 +36,7 @@ public class TurnThread {
                     int[] wheelSpeeds = b.computeWheelSpeed(radius, angle);
                     double speed = (wheelSpeeds[0] + wheelSpeeds[1]) / 2;
                     double distance = (radius * angle) * Math.PI / 180;
-                    double time = (distance / speed);
+                    double time = Math.abs(distance / speed);
                     b.driveDirect(wheelSpeeds[1], wheelSpeeds[0]);
                     SystemClock.sleep((int) (time * 10000));
                     b.getDashboard().log("" + time * 10000);
