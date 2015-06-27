@@ -116,6 +116,7 @@ public class Brain extends IRobotCreateAdapter {
             if ((sonar.getLeftDistance() != leftDistance || sonar.getRightDistance() != rightDistance)
                     && sideDistanceListeners != null)
             {
+                dashboard.log("L: "+leftDistance+ " R: "+rightDistance);
                 for (DistanceSensorListener dsl: sideDistanceListeners)
                 {
                     dsl.distanceListener(sonar.getLeftDistance(), sonar.getRightDistance(), isBumpLeft(), isBumpRight());
@@ -200,12 +201,14 @@ public class Brain extends IRobotCreateAdapter {
 //        dashboard.log("After Sonar Read");
     }
 
-    public double getAngleOffset(double width, double l, double r) {
+    public double getAngleOffset(double width, double l, double r) throws IllegalArgumentException {
+        dashboard.log("Width: " + width + "L: " + l + "R: " + r);
         if (width < l + r + ROBOT_WIDTH) {
             double ratio = width / (l + r + ROBOT_WIDTH);
             double offsetRadians = Math.asin(ratio);
             return 90 - Math.toDegrees(offsetRadians);
         } else {
+            dashboard.log("ILLEGAL ARGUMENTS!! Width = " + width + " L + R + ROBOT_WIDTH = " + (l + r + ROBOT_WIDTH));
             return 0;
         }
     }

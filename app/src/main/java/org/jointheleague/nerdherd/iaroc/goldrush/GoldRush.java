@@ -28,28 +28,29 @@ public class GoldRush extends Mission implements DistanceSensorListener {
     }
 
     @Override
-    public void distanceListener(int leftDistance, int rightDistance, boolean isBumpLeft, boolean isBumpRight) {
-
+    public void distanceListener(int leftDistance, int rightDistance, boolean bumpLeft, boolean bumpRight) {
+        this.bumped = bumpLeft || bumpRight;
+        this.left = leftDistance;
+        this.right = rightDistance;
     }
 
     @Override
     public void runMission() throws ConnectionLostException {
-//        for (int i = 0; i < 3; i++) {
-//            boolean doleft = left > right;
-//            double time;
-//            if (doleft) {
-//                time = TurnThread.startTurn(dashboard.getBrain(), -90);
-//            } else {
-//                time = TurnThread.startTurn(dashboard.getBrain(), 90);
-//            }
-//            SystemClock.sleep((long) time);
-//            dashboard.getBrain().driveDirect(500, 500);
-//            while (!bumped) {
-//                SystemClock.sleep(10);
-//            }
-//            dashboard.getBrain().driveDirect(0, 0);
-//            Runtime.getRuntime().gc();
-//        }
+        for (int i = 0; i < 3; i++) {
+            boolean doleft = left > right;
+            double time;
+            if (doleft) {
+                TurnThread.startTurn(dashboard.getBrain(), -90, false);
+            } else {
+                TurnThread.startTurn(dashboard.getBrain(), 90, false);
+            }
+            dashboard.getBrain().driveDirect(500, 500);
+            while (!bumped) {
+                SystemClock.sleep(10);
+            }
+            dashboard.getBrain().driveDirect(0, 0);
+            Runtime.getRuntime().gc();
+        }
         dashboard.getBrain().demo(Brain.DEMO_COVER_AND_DOCK);
     }
 

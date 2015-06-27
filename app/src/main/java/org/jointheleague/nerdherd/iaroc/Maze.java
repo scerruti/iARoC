@@ -113,4 +113,7 @@ public class Maze implements DistanceSensorListener, LoopAction, TurnEndHandler 
     public void setIsWallDataValid(boolean isWallDataValid) {
         this.isWallDataValid = isWallDataValid;
     }
+
+    public void solve() {
+    }
 }
