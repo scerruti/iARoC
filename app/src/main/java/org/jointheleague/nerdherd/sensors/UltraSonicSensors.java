@@ -59,7 +59,7 @@ public class UltraSonicSensors
 	public void read() throws ConnectionLostException, InterruptedException
 	{
 		leftDistance = read(leftStrobe, LEFT_ULTRASONIC_INPUT_PIN);
-		//frontDistance = read(frontStrobe, FRONT_ULTRASONIC_INPUT_PIN);
+		frontDistance = read(frontStrobe, FRONT_ULTRASONIC_INPUT_PIN);
 		rightDistance = read(rightStrobe, RIGHT_ULTRASONIC_INPUT_PIN);
 	}
 

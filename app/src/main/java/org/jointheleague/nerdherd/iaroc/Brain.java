@@ -87,6 +87,9 @@ public class Brain extends IRobotCreateAdapter {
 //        driveDirect(speed[0], speed[1]);
         try {
             sonar.read();
+            dashboard.log("F: " + sonar.getFrontDistance());
+            dashboard.log("L: " + sonar.getLeftDistance());
+            dashboard.log("R: " + sonar.getRightDistance());
             sonarRead = true;
         } catch (InterruptedException e) {
             dashboard.log(e.getMessage());
@@ -116,7 +119,7 @@ public class Brain extends IRobotCreateAdapter {
             if ((sonar.getLeftDistance() != leftDistance || sonar.getRightDistance() != rightDistance)
                     && sideDistanceListeners != null)
             {
-                dashboard.log("L: "+leftDistance+ " R: "+rightDistance);
+//                dashboard.log("L: "+leftDistance+ " R: "+rightDistance);
                 for (DistanceSensorListener dsl: sideDistanceListeners)
                 {
                     dsl.distanceListener(sonar.getLeftDistance(), sonar.getRightDistance(), isBumpLeft(), isBumpRight());
