@@ -3,6 +3,8 @@ package org.jointheleague.nerdherd.iaroc;
 import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnEndHandler;
 import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnThread;
 
+import ioio.lib.api.exception.ConnectionLostException;
+
 /**
  * Created by RussB on 6/22/15.
  */
@@ -10,14 +12,20 @@ public class DragRace extends Mission implements DistanceSensorListener, TurnEnd
     private static final int FINISH_DISTANCE = 130;
     private static final int MAX_SPEED = 500;
     private static final int BUFFER = 35;
-    private static final int ANGLE_BUFFER = 20;
-    private static final int COURSE_WIDTH = 132;
+    private static final int ANGLE_BUFFER = 3;
+    private static final int SENSOR_READ_BUFFER = 10;
+    private static final double COURSE_WIDTH = 129.29;
     private static boolean isAngleFixing = false;
+    public int lastL;
+    public int lastR;
+
 
     public DragRace(Dashboard dashboard)
     {
         super(dashboard);
         dashboard.getBrain().registerDistanceListener(this);
+        lastL = 0;
+        lastR = 0;
     }
 
     @Override
@@ -43,7 +51,7 @@ public class DragRace extends Mission implements DistanceSensorListener, TurnEnd
         if (leftBump && rightBump)
         {
             dashboard.log("Time to reverse");
-            dashboard.getBrain().unregisterFrontDistanceListener(this);
+            dashboard.getBrain().unregisterDistanceListener(this);
             try {
                 dashboard.getBrain().driveDirect(0, 0);
 //                partTwo();
@@ -70,30 +78,40 @@ public class DragRace extends Mission implements DistanceSensorListener, TurnEnd
         double offsetAngle = dashboard.getBrain().getAngleOffset(COURSE_WIDTH, leftDistance, rightDistance);
         dashboard.log("Offset Angle = " + offsetAngle);
         if (!isAngleFixing) {
-            if ((leftDistance > BUFFER && rightDistance > BUFFER)
-                    && (offsetAngle < ANGLE_BUFFER)) {
-                dashboard.log("Nothing to change");
-                return;
-            }
-            dashboard.log(leftDistance + ", " + rightDistance);
-            if (offsetAngle > ANGLE_BUFFER) {
-                dashboard.log("the angle is largely off: start turning");
-                isAngleFixing = true;
-                if (leftDistance > rightDistance) {
-                    dashboard.log("left turn not-start");
-                    TurnThread.startTurn(dashboard.getBrain(), (int) -Math.round(offsetAngle), true, 200, this);
-                } else {
-                    dashboard.log("right turn not-start");
-                    TurnThread.startTurn(dashboard.getBrain(), (int) Math.round(offsetAngle), true, 200, this);
+            if (lastL == 0 || lastR == 0) {
+                lastL = leftDistance;
+                lastR = rightDistance;
+            }  else if (lastL == 314 || lastR == 314 ||
+                    lastL == -1 || lastR == -1) {
+                dashboard.log("Sensor Error, lastL = " + lastL + " lastR = " + lastR);
+            } else if (Math.abs(lastL - leftDistance) < SENSOR_READ_BUFFER ||
+                    Math.abs(lastR - rightDistance) < SENSOR_READ_BUFFER) {
+                if ((leftDistance > BUFFER && rightDistance > BUFFER)
+                        && (offsetAngle < ANGLE_BUFFER)) {
+                    dashboard.log("Nothing to change");
+                    return;
                 }
-            }
-            if (leftDistance <= BUFFER) {
-                dashboard.log("Left Way Too Close");
+                dashboard.log(leftDistance + ", " + rightDistance);
+                if (offsetAngle > ANGLE_BUFFER /* || leftDistance <= BUFFER|| rightDistance <= BUFFER */) {
+                    dashboard.log("the angle is largely off: start turning");
+                    isAngleFixing = true;
+                    if (leftDistance > rightDistance) {
+                        dashboard.speak("left turn start");
+                        TurnThread.startTurn(dashboard.getBrain(), (int) -Math.round(offsetAngle), true, 200, this);
+                    } else {
+                        dashboard.speak("right turn start");
+                        TurnThread.startTurn(dashboard.getBrain(), (int) Math.round(offsetAngle), true, 200, this);
+                    }
+                }
+                lastL = leftDistance;
+                lastR = rightDistance;
             } else {
-                dashboard.log("Right Way Too Close");
+                dashboard.log("Sensor Error, lastL = " + lastL + " lastR = " + lastR + " leftDistance = " + leftDistance + " rightDistance = " + rightDistance);
             }
-        } else {
+        }  else {
             dashboard.log("Turning");
+            lastL = leftDistance;
+            lastR = rightDistance;
         }
     }
 

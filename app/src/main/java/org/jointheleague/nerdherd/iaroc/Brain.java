@@ -1,5 +1,7 @@
 package org.jointheleague.nerdherd.iaroc;
 
+import android.os.SystemClock;
+
 import org.jointheleague.nerdherd.sensors.UltraSonicSensors;
 import org.wintrisstech.irobot.ioio.IRobotCreateAdapter;
 import org.wintrisstech.irobot.ioio.IRobotCreateInterface;
@@ -14,7 +16,7 @@ public class Brain extends IRobotCreateAdapter {
     public UltraSonicSensors sonar;
     int theta = 0;
     public static final double DISTANCE_TO_CENTER = 13.335;
-    public static final double ROBOT_WIDTH = 36;
+    public static final double ROBOT_WIDTH = 34.29;
     ArrayList<DistanceSensorListener> frontDistanceListeners;
     ArrayList<DistanceSensorListener> leftDistanceListeners;
     ArrayList<DistanceSensorListener> rightDistanceListeners;
@@ -25,9 +27,8 @@ public class Brain extends IRobotCreateAdapter {
     private boolean isBumpRight = false;
     private int leftDistance = -1;
     private int rightDistance = -1;
-    private int MAX_SPEED = 250;
-    public int lws = MAX_SPEED;
-    public int rws = MAX_SPEED;
+    public int currLSpeed = 0;
+    public int currRSpeed = 0;
 
 
     public Brain(IOIO ioio, IRobotCreateInterface create, Dashboard dashboard)
@@ -87,7 +88,9 @@ public class Brain extends IRobotCreateAdapter {
 //        driveDirect(speed[0], speed[1]);
         try {
             sonar.read();
-            sonarRead = true;
+            if (sonar.getLeftDistance() != -1 && sonar.getRightDistance() != -1) {
+                sonarRead = true;
+            }
         } catch (InterruptedException e) {
             dashboard.log(e.getMessage());
         }
@@ -121,6 +124,8 @@ public class Brain extends IRobotCreateAdapter {
                 {
                     dsl.distanceListener(sonar.getLeftDistance(), sonar.getRightDistance(), isBumpLeft(), isBumpRight());
                 }
+                leftDistance = sonar.getLeftDistance();
+                rightDistance = sonar.getRightDistance();
             }
 //            if (sonar.getFrontDistance() != frontDistance)
 //            {
@@ -159,6 +164,8 @@ public class Brain extends IRobotCreateAdapter {
         try {
             dashboard.log("Driving forward, " + a + " " + b);
             driveDirect(a, b);
+            currLSpeed = a;
+            currRSpeed = b;
         } catch (ConnectionLostException e) {
             e.printStackTrace();
         }
@@ -203,7 +210,7 @@ public class Brain extends IRobotCreateAdapter {
 
     public double getAngleOffset(double width, double l, double r) throws IllegalArgumentException {
         dashboard.log("Width: " + width + "L: " + l + "R: " + r);
-        if (width < l + r + ROBOT_WIDTH) {
+        if (width <= l + r + ROBOT_WIDTH) {
             double ratio = width / (l + r + ROBOT_WIDTH);
             double offsetRadians = Math.asin(ratio);
             return 90 - Math.toDegrees(offsetRadians);
@@ -222,5 +229,9 @@ public class Brain extends IRobotCreateAdapter {
             loopActions = new ArrayList<>();
         }
         loopActions.add(action);
+    }
+
+    public void unregisterDistanceListener(DistanceSensorListener distanceListener) {
+
     }
 }
