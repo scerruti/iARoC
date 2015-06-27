@@ -24,29 +24,12 @@ public class GoldRush extends Mission implements DistanceSensorListener {
     public GoldRush(Dashboard dashboard) {
         super(dashboard);
         this.dashboard = dashboard;
-        dashboard.getBrain().registerFrontDistanceListener(this);
-        dashboard.getBrain().registerSideDistanceListener(this);
-        dashboard.getBrain().registerLeftDistanceListener(this);
-        dashboard.getBrain().registerRightDistanceListener(this);
+        dashboard.getBrain().registerDistanceListener(this);
     }
 
     @Override
-    public void frontDistanceListener(boolean leftBump, boolean rightBump) {
-        this.bumped = leftBump || rightBump;
-    }
-
-    @Override
-    public void leftDistanceListener(int leftDistance) {
-        this.left = leftDistance;
-    }
-
-    @Override
-    public void rightDistanceListener(int rightDistance) {
-        this.right = rightDistance;
-    }
-
-    @Override
-    public void sideDistanceListener(int leftDistance, int rightDistance) {
+    public void distanceListener(int leftDistance, int rightDistance, boolean bumpLeft, boolean bumpRight) {
+        this.bumped = bumpLeft || bumpRight;
         this.left = leftDistance;
         this.right = rightDistance;
     }

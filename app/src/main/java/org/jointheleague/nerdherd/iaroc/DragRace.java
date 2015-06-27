@@ -3,8 +3,6 @@ package org.jointheleague.nerdherd.iaroc;
 import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnEndHandler;
 import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnThread;
 
-import ioio.lib.api.exception.ConnectionLostException;
-
 /**
  * Created by RussB on 6/22/15.
  */
@@ -19,8 +17,7 @@ public class DragRace extends Mission implements DistanceSensorListener, TurnEnd
     public DragRace(Dashboard dashboard)
     {
         super(dashboard);
-        dashboard.getBrain().registerFrontDistanceListener(this);
-        dashboard.getBrain().registerSideDistanceListener(this);
+        dashboard.getBrain().registerDistanceListener(this);
     }
 
     @Override
@@ -69,7 +66,7 @@ public class DragRace extends Mission implements DistanceSensorListener, TurnEnd
     }
 
     @Override
-    public void sideDistanceListener(int leftDistance, int rightDistance) {
+    public void distanceListener(int leftDistance, int rightDistance, boolean isBumpLeft, boolean isBumpRight) {
         double offsetAngle = dashboard.getBrain().getAngleOffset(COURSE_WIDTH, leftDistance, rightDistance);
         dashboard.log("Offset Angle = " + offsetAngle);
         if (!isAngleFixing) {
