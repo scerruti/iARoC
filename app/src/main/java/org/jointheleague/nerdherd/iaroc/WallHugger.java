@@ -19,11 +19,7 @@ public class WallHugger implements DistanceSensorListener {
     }
 
     public boolean rightWallHugger(TurnEndHandler turnEndHandler) {
-        //mazeFunctions.driveSquare();
         boolean turning = false;
-        if (!maze.isWallDataValid()) {
-            return true;
-        }
         if (!maze.isWallRight()) {
             turning = true;
             dashboard.log("Turning right");

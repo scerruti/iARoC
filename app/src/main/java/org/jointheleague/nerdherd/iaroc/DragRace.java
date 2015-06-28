@@ -29,13 +29,13 @@ public class DragRace extends Mission implements DistanceSensorListener, TurnEnd
 
     public void partOne()
     {
-        dashboard.getBrain().driveForward(MAX_SPEED, MAX_SPEED);
+        dashboard.getBrain().driveForward(MAX_SPEED);
         dashboard.log("Part one");
     }
 
     public void partTwo()
     {
-        dashboard.getBrain().driveForward(-MAX_SPEED, -MAX_SPEED);
+        dashboard.getBrain().driveBackwards(MAX_SPEED);
         dashboard.log("Part two");
     }
 
@@ -103,6 +103,6 @@ public class DragRace extends Mission implements DistanceSensorListener, TurnEnd
     public void onTurnEnd() {
         dashboard.log("Back to normal.");
         isAngleFixing = false;
-        dashboard.getBrain().driveForward(MAX_SPEED, MAX_SPEED);
+        dashboard.getBrain().driveForward(MAX_SPEED);
     }
 }

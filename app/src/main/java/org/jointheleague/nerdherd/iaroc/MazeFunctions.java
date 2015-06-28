@@ -65,24 +65,25 @@ public class MazeFunctions {
     }
 
     public void turnRight(TurnEndHandler turnEndHandler) {
-        TurnThread.startTurn(dashboard.getBrain(), 90, true, RADIUS, turnEndHandler);
+        dashboard.getBrain().rightSquareTurn(RADIUS, turnEndHandler);
     }
 
     public void turnLeft(TurnEndHandler turnEndHandler) {
-        TurnThread.startTurn(dashboard.getBrain(), -90, true, RADIUS, turnEndHandler);
+        dashboard.getBrain().leftSquareTurn(RADIUS, turnEndHandler);
     }
 
     public void turnAround(TurnEndHandler turnEndHandler) {
-        TurnThread.startTurn(dashboard.getBrain(), 180, false, 0, turnEndHandler);
+        dashboard.getBrain().uTurn(turnEndHandler);
     }
 
     public void driveSquare() {
-        dashboard.getBrain().driveForward(MAX_WHEEL_SPEED, MAX_WHEEL_SPEED);
+        dashboard.getBrain().driveForward(MAX_WHEEL_SPEED);
+        SystemClock.sleep(time(SQUARE_DIST, MAX_WHEEL_SPEED));
     }
 
     public void driveBackHalfSquare() {
-        dashboard.getBrain().driveForward(-MAX_WHEEL_SPEED, -MAX_WHEEL_SPEED);
+        dashboard.getBrain().driveBackwards(MAX_WHEEL_SPEED);
         SystemClock.sleep(time(SQUARE_DIST/2, MAX_WHEEL_SPEED));
-        dashboard.getBrain().driveForward(0, 0);
+        dashboard.getBrain().stop();
     }
 }

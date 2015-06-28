@@ -1,10 +1,13 @@
 package org.jointheleague.nerdherd.iaroc;
 
+import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnEndHandler;
+import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnThread;
 import org.jointheleague.nerdherd.sensors.UltraSonicSensors;
 import org.wintrisstech.irobot.ioio.IRobotCreateAdapter;
 import org.wintrisstech.irobot.ioio.IRobotCreateInterface;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
@@ -15,9 +18,6 @@ public class Brain extends IRobotCreateAdapter {
     int theta = 0;
     public static final double DISTANCE_TO_CENTER = 13.335;
     public static final double ROBOT_WIDTH = 36;
-    ArrayList<DistanceSensorListener> frontDistanceListeners;
-    ArrayList<DistanceSensorListener> leftDistanceListeners;
-    ArrayList<DistanceSensorListener> rightDistanceListeners;
     ArrayList<DistanceSensorListener> sideDistanceListeners;
     ArrayList<LoopAction> loopActions;
     private int frontDistance = -1;
@@ -28,14 +28,12 @@ public class Brain extends IRobotCreateAdapter {
     private int MAX_SPEED = 250;
     public int lws = MAX_SPEED;
     public int rws = MAX_SPEED;
+    private List<BumpListener> bumpListeners;
 
 
     public Brain(IOIO ioio, IRobotCreateInterface create, Dashboard dashboard)
             throws ConnectionLostException {
         super(create);
-        frontDistanceListeners = new ArrayList<>();
-        leftDistanceListeners = new ArrayList<>();
-        rightDistanceListeners = new ArrayList<>();
         sonar = new UltraSonicSensors(ioio);
         this.dashboard = dashboard;
     }
@@ -43,21 +41,23 @@ public class Brain extends IRobotCreateAdapter {
     /* This method is executed when the robot first starts up. */
     public void initialize() throws ConnectionLostException {
         dashboard.log("Hello! I'm a Clever Robot!");
-        //what would you like me to do, Clever Human?
+        dashboard.speak("what would you like me to do, Clever Human?");
     }
 
     public int[] computeWheelSpeed(int turnRadius, int angleOfTurn) {
         if (turnRadius == 0) {
-            return new int[]{-250, 250};
+            int speed = (Math.abs(getRequestedLeftVelocity()) + Math.abs(getRequestedRightVelocity())) / 2;
+            if(angleOfTurn < 0) return new int[]{-speed, speed};
+            else return new int[]{speed, -speed};
         }
-        double leftWheelSpeed = 250;
-        double rightWheelSpeed = 250;
+        double leftWheelSpeed = getRequestedLeftVelocity();
+        double rightWheelSpeed = getRequestedRightVelocity();
         double a = turnRadius + DISTANCE_TO_CENTER;
         double b = turnRadius - DISTANCE_TO_CENTER;
         double arcRobot = turnRadius * angleOfTurn * Math.PI / 180;
         double arcA = a * angleOfTurn * Math.PI / 180;
         double arcB = b * angleOfTurn * Math.PI / 180;
-        dashboard.log("Computing wheel speed");
+//        dashboard.log("Computing wheel speed");
         double time = arcRobot / ((rightWheelSpeed + leftWheelSpeed) / 2);
         double aSpeed = arcA / time;
         double bSpeed = arcB / time;
@@ -74,12 +74,33 @@ public class Brain extends IRobotCreateAdapter {
 
     /* This method is called repeatedly. */
     public void loop() throws ConnectionLostException {
-        dashboard.log("Loop");
+        //dashboard.log("Loop");
 
         readSensors(SENSORS_BUMPS_AND_WHEEL_DROPS);
 
         if (isBumpLeft() || isBumpRight()) {
-            driveDirect(0, 0);
+            stop();
+            dashboard.speak("Bump bump bump");
+            if(bumpListeners != null) {
+                for (BumpListener bumpListener : bumpListeners) {
+                    bumpListener.onAnyBump(isBumpLeft(), isBumpRight());
+                }
+                if (isBumpLeft() && !isBumpRight()) {
+                    for (BumpListener bumpListener : bumpListeners) {
+                        bumpListener.onLeftBump();
+                    }
+                }
+                if (isBumpRight() && !isBumpLeft()) {
+                    for (BumpListener bumpListener : bumpListeners) {
+                        bumpListener.onRightBump();
+                    }
+                }
+                if (isBumpLeft() && isBumpRight()) {
+                    for (BumpListener bumpListener : bumpListeners) {
+                        bumpListener.onFrontBump();
+                    }
+                }
+            }
         }
 
         boolean sonarRead = false;
@@ -116,7 +137,7 @@ public class Brain extends IRobotCreateAdapter {
             if ((sonar.getLeftDistance() != leftDistance || sonar.getRightDistance() != rightDistance)
                     && sideDistanceListeners != null)
             {
-                dashboard.log("L: "+leftDistance+ " R: "+rightDistance);
+//                dashboard.log("L: "+leftDistance+ " R: "+rightDistance);
                 for (DistanceSensorListener dsl: sideDistanceListeners)
                 {
                     dsl.distanceListener(sonar.getLeftDistance(), sonar.getRightDistance(), isBumpLeft(), isBumpRight());
@@ -155,19 +176,17 @@ public class Brain extends IRobotCreateAdapter {
         }
     }
 
-    protected void driveForward(int a, int b) {
-        try {
-            dashboard.log("Driving forward, " + a + " " + b);
-            driveDirect(a, b);
-        } catch (ConnectionLostException e) {
-            e.printStackTrace();
-        }
-    }
-
     protected int[] getCoordinate(int theta, int distance) {
         int x = (int) Math.round((distance * Math.cos(theta * Math.PI / 180)));
         int y = (int) Math.round((distance * Math.sin(theta * Math.PI / 180)));
         return new int[]{x, y};
+    }
+
+    public void registerBumpListener(BumpListener bumpListener) {
+        if (this.bumpListeners == null) {
+            this.bumpListeners = new ArrayList<>();
+        }
+        this.bumpListeners.add(bumpListener);
     }
 
     public void registerDistanceListener(DistanceSensorListener sideDistanceListener) {
@@ -226,5 +245,50 @@ public class Brain extends IRobotCreateAdapter {
 
     public void unregisterDistanceListener(DistanceSensorListener listener) {
         if (sideDistanceListeners != null) sideDistanceListeners.remove(listener);
+    }
+
+    public boolean driveForward(int speed) {
+        try {
+            dashboard.log("Driving forward, " + speed);
+            driveDirect(speed, speed);
+            return true;
+        } catch (ConnectionLostException e) {
+            dashboard.log("Error setting wheel speed.");
+            dashboard.log(String.valueOf(e.getStackTrace()));
+            return false;
+        }
+    }
+
+    public boolean driveBackwards(int speed) {
+        return driveForward(-speed);
+    }
+
+    public boolean stop() {
+        return driveForward(0);
+    }
+
+    public boolean rightSquareTurn(int radius, TurnEndHandler handler) {
+        return rightTurn(90, radius, handler);
+    }
+
+    public boolean rightTurn(int angle, int radius, TurnEndHandler handler) {
+        return turn(angle, radius, handler);
+    }
+
+    public boolean leftSquareTurn(int radius, TurnEndHandler handler) {
+        return leftTurn(90, radius, handler);
+    }
+
+    public boolean leftTurn(int angle, int radius, TurnEndHandler handler) {
+        return turn(-angle, radius, handler);
+    }
+
+    public boolean turn(int angle, int radius, TurnEndHandler handler) {
+        TurnThread.startTurn(this, angle, true, radius, handler);
+        return true;
+    }
+
+    public boolean uTurn(TurnEndHandler turnEndHandler) {
+        return turn(180, 0, turnEndHandler);
     }
 }

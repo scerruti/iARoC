@@ -149,9 +149,6 @@ public class Dashboard extends IOIOActivity implements
                     @Override
                     public void run() {
                         Maze maze = new Maze(Dashboard.this);
-                        while(true) {
-                            maze.doAction();
-                        }
                     }
                 });
                 t.start();
