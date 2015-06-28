@@ -29,6 +29,14 @@ public class Brain extends IRobotCreateAdapter {
     public int lws = MAX_SPEED;
     public int rws = MAX_SPEED;
     private List<BumpListener> bumpListeners;
+    protected int beacon = 0;
+    public static int RED_BUOY = 8;
+    public static int GREEN_BUOY = 4;
+    public static int FORCE_FIELD = 2;
+    public static int NOTHING = 1;
+    private boolean red;
+    private boolean green;
+    private boolean blue;
 
 
     public Brain(IOIO ioio, IRobotCreateInterface create, Dashboard dashboard)
@@ -47,11 +55,12 @@ public class Brain extends IRobotCreateAdapter {
     public int[] computeWheelSpeed(int turnRadius, int angleOfTurn) {
         if (turnRadius == 0) {
             int speed = (Math.abs(getRequestedLeftVelocity()) + Math.abs(getRequestedRightVelocity())) / 2;
+            if (speed == 0) speed = MazeFunctions.MAX_WHEEL_SPEED;
             if(angleOfTurn < 0) return new int[]{-speed, speed};
             else return new int[]{speed, -speed};
         }
-        double leftWheelSpeed = getRequestedLeftVelocity();
-        double rightWheelSpeed = getRequestedRightVelocity();
+        double leftWheelSpeed = getRequestedLeftVelocity() == 0 ? MazeFunctions.MAX_WHEEL_SPEED : getRequestedLeftVelocity();
+        double rightWheelSpeed = getRequestedRightVelocity() == 0 ? MazeFunctions.MAX_WHEEL_SPEED : getRequestedRightVelocity();
         double a = turnRadius + DISTANCE_TO_CENTER;
         double b = turnRadius - DISTANCE_TO_CENTER;
         double arcRobot = turnRadius * angleOfTurn * Math.PI / 180;
@@ -102,6 +111,21 @@ public class Brain extends IRobotCreateAdapter {
                 }
             }
         }
+
+        readSensors(SENSORS_INFRARED_BYTE);
+        int ibyte = getInfraredByte();
+        beacon = ibyte & 15;
+        if (isBitSet(beacon, 1)) {
+            red = false;
+            green = false;
+            blue = false;
+        } else {
+            red = isBitSet(beacon, RED_BUOY);
+            green = isBitSet(beacon, GREEN_BUOY);
+            blue = isBitSet(beacon, FORCE_FIELD);
+        }
+        dashboard.log("I: "+Integer.toBinaryString(beacon));
+        dashboard.log("RGF: " + red + " " + green + " " + blue);
 
         boolean sonarRead = false;
 //        int[] speed = computeWheelSpeed(100, 90);
@@ -174,6 +198,22 @@ public class Brain extends IRobotCreateAdapter {
                 action.doAction();
             }
         }
+    }
+
+    public boolean isRedBuoyVisible() {
+        return red;
+    }
+
+    public boolean isGreenBuoyVisible() {
+        return green;
+    }
+
+    public boolean isForceFieldVisible() {
+        return blue;
+    }
+
+    public static boolean isBitSet(int beacon, int bits) {
+        return (beacon & bits) == bits;
     }
 
     protected int[] getCoordinate(int theta, int distance) {

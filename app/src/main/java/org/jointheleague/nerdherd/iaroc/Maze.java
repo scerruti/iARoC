@@ -62,6 +62,9 @@ public class Maze implements DistanceSensorListener, TurnEndHandler, BumpListene
 
         if (isBumpLeft && isBumpRight) {
             wallFront = true;
+            if(dashboard.getBrain().isForceFieldVisible()) {
+                victory();
+            }
             actionNeeded = true;
         }
         else {
@@ -77,6 +80,33 @@ public class Maze implements DistanceSensorListener, TurnEndHandler, BumpListene
         }
 
         //dashboard.log("Wall left: " + wallLeft + "  Wall right: " + wallRight + "  Wall front: " + wallFront);
+    }
+
+    private void victory() {
+        dashboard.getBrain().unregisterDistanceListener(this);
+        turning = true;
+        dashboard.getBrain().driveBackwards(MazeFunctions.MAX_WHEEL_SPEED);
+        SystemClock.sleep(1000);
+        dashboard.getBrain().uTurn(new TurnEndHandler() {
+            @Override
+            public void onTurnEnd() {
+                dashboard.getBrain().uTurn(new TurnEndHandler() {
+                    @Override
+                    public void onTurnEnd() {
+                        Maze.this.victory2();
+                    }
+                });
+            }
+        });
+    }
+
+    private void victory2() {
+        for(int i = 0; i < 10; i++) {
+            dashboard.speak("We win!");
+            SystemClock.sleep(500);
+        }
+        dashboard.getBrain().stop();
+        // Set up for solution run
     }
 
     @Override
