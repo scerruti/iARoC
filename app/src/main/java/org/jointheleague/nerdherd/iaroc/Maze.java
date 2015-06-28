@@ -15,19 +15,28 @@ public class Maze implements DistanceSensorListener, TurnEndHandler, BumpListene
     boolean wallRight;
     boolean wallFront;
     protected Dashboard dashboard;
+    protected Navigator navigator;
     private boolean turning = false;
     private boolean firstCall = false;
+    private Mode mode = Mode.MAP;
+    public static enum Mode {
+        MAP,
+        SOLVE,
+    }
 
     public Maze(Dashboard dashboard) {
         this.dashboard = dashboard;
-        this.wallHugger = new WallHugger(dashboard, this);
+        mazeFunctions = new MazeFunctions(dashboard, this);
+        this.navigator = new Navigator(dashboard, this, mazeFunctions);
+        this.wallHugger = new WallHugger(dashboard, this, navigator);
         dashboard.getBrain().registerDistanceListener(this);
         dashboard.getBrain().registerBumpListener(this);
-        mazeFunctions = new MazeFunctions(dashboard, this);
     }
 
     public void solve() {
-
+        dashboard.getBrain().unregisterDistanceListener(this);
+        navigator.copy();
+        dashboard.getBrain().registerDistanceListener(this);
     }
 
     public void distanceListener(int leftDistance, int rightDistance, boolean isBumpLeft, boolean isBumpRight) {
@@ -73,7 +82,11 @@ public class Maze implements DistanceSensorListener, TurnEndHandler, BumpListene
 
         if (actionNeeded) {
             //dashboard.log("Do action");
-            turning = wallHugger.rightWallHugger(this);
+            if (mode.equals(Mode.MAP)) {
+                turning = wallHugger.rightWallHugger(this);
+            } else {
+                turning = navigator.doNextMove(this);
+            }
             if (turning) {
                 //dashboard.log("Turning");
             }
@@ -112,6 +125,9 @@ public class Maze implements DistanceSensorListener, TurnEndHandler, BumpListene
     @Override
     public void onTurnEnd() {
         turning = false;
+        if (dashboard.getBrain().getRequestedLeftVelocity() == 0) {
+            dashboard.getBrain().driveForward(MazeFunctions.MAX_WHEEL_SPEED);
+        }
     }
 
     public boolean isWallLeft() {
