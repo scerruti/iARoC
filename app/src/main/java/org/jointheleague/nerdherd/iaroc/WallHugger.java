@@ -34,11 +34,13 @@ public class WallHugger implements DistanceSensorListener {
             dashboard.log("Turning left");
             mazeFunctions.driveBackHalfSquare();
             mazeFunctions.turnLeft(turnEndHandler);
+            dashboard.getBrain().driveForward(MazeFunctions.MAX_WHEEL_SPEED);
         }
         else {
             turning = true;
             mazeFunctions.driveBackHalfSquare();
             mazeFunctions.turnAround(turnEndHandler);
+            dashboard.getBrain().driveForward(MazeFunctions.MAX_WHEEL_SPEED);
         }
         return turning;
     }
