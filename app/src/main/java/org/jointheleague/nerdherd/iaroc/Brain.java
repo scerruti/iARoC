@@ -25,9 +25,6 @@ public class Brain extends IRobotCreateAdapter {
     private boolean isBumpRight = false;
     private int leftDistance = -1;
     private int rightDistance = -1;
-    private int MAX_SPEED = 250;
-    public int lws = MAX_SPEED;
-    public int rws = MAX_SPEED;
     private List<BumpListener> bumpListeners;
     protected int beacon = 0;
     public static int RED_BUOY = 8;
@@ -331,4 +328,30 @@ public class Brain extends IRobotCreateAdapter {
     public boolean uTurn(TurnEndHandler turnEndHandler) {
         return turn(180, 0, turnEndHandler);
     }
+
+    public boolean rightSquareTurnAndWait(int radius) {
+        return rightTurnAndWait(90, radius);
+    }
+
+    public boolean rightTurnAndWait(int angle, int radius) {
+        return turnAndWait(angle, radius);
+    }
+
+    public boolean leftSquareTurnAndWait(int radius) {
+        return leftTurnAndWait(90, radius);
+    }
+
+    public boolean leftTurnAndWait(int angle, int radius) {
+        return turnAndWait(-angle, radius);
+    }
+
+    public boolean uTurnAndWait() {
+        return turnAndWait(180, 0);
+    }
+
+    public boolean turnAndWait(int angle, int radius) {
+        TurnThread.startTurn(this, angle, false, radius, null);
+        return true;
+    }
+
 }

@@ -145,6 +145,7 @@ public class Maze implements DistanceSensorListener, TurnEndHandler, BumpListene
 
     @Override
     public void onRightBump() {
+        //TODO Use a brain function
         dashboard.getBrain().driveBackwards(250);
         SystemClock.sleep(1000);
         dashboard.getBrain().stop();
@@ -162,6 +163,7 @@ public class Maze implements DistanceSensorListener, TurnEndHandler, BumpListene
 
     @Override
     public void onLeftBump() {
+        //TODO Use a brain function
         dashboard.getBrain().driveBackwards(250);
         SystemClock.sleep(1000);
         dashboard.getBrain().stop();

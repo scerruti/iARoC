@@ -16,6 +16,8 @@ import ioio.lib.api.exception.ConnectionLostException;
  */
 public class GoldRush extends Mission implements DistanceSensorListener {
 
+    public static final int MAX_VELOCITY = 500;
+    public static final int TURN_RADIUS = 28;
     private Dashboard dashboard;
     private boolean bumped;
     private int left;
@@ -40,18 +42,20 @@ public class GoldRush extends Mission implements DistanceSensorListener {
             boolean doleft = left > right;
             double time;
             if (doleft) {
-                TurnThread.startTurn(dashboard.getBrain(), -90, false);
+                dashboard.getBrain().leftSquareTurnAndWait(TURN_RADIUS);
             } else {
-                TurnThread.startTurn(dashboard.getBrain(), 90, false);
+                dashboard.getBrain().rightSquareTurnAndWait(TURN_RADIUS);
             }
-            dashboard.getBrain().driveDirect(500, 500);
+            dashboard.getBrain().driveForward(MAX_VELOCITY);
             while (!bumped) {
                 SystemClock.sleep(10);
             }
-            dashboard.getBrain().driveDirect(0, 0);
+            dashboard.getBrain().stop();
             Runtime.getRuntime().gc();
         }
-        dashboard.getBrain().demo(Brain.DEMO_COVER_AND_DOCK);
+        while (true) {
+            dashboard.getBrain().demo(Brain.DEMO_COVER_AND_DOCK);
+        }
     }
 
 }

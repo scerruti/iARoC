@@ -63,13 +63,10 @@ public class DragRace extends Mission implements DistanceSensorListener, TurnEnd
         {
             dashboard.log("Time to reverse");
             dashboard.getBrain().unregisterDistanceListener(this);
-            try {
-                dashboard.getBrain().driveDirect(0, 0);
-//                partTwo();
-            } catch (ConnectionLostException e) {
-                e.printStackTrace();
-            }
-        }        double offsetAngle = dashboard.getBrain().getAngleOffset(COURSE_WIDTH, leftDistance, rightDistance);
+            dashboard.getBrain().stop();
+//            partTwo();
+        }
+        double offsetAngle = dashboard.getBrain().getAngleOffset(COURSE_WIDTH, leftDistance, rightDistance);
         dashboard.log("Offset Angle = " + offsetAngle);
         if (!isAngleFixing) {
             if ((leftDistance > BUFFER && rightDistance > BUFFER)
