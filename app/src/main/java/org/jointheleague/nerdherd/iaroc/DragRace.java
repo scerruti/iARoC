@@ -3,6 +3,8 @@ package org.jointheleague.nerdherd.iaroc;
 import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnEndHandler;
 import org.jointheleague.nerdherd.iaroc.thread.navigate.turn.TurnThread;
 
+import ioio.lib.api.exception.ConnectionLostException;
+
 /**
  * Created by RussB on 6/22/15.
  */
@@ -38,19 +40,7 @@ public class DragRace extends Mission implements DistanceSensorListener, TurnEnd
     }
 
     public void frontDistanceListener(boolean leftBump, boolean rightBump) {
-        dashboard.log("checking if it's time to reverse");
-        //if(frontDistance < FINISH_DISTANCE)
-        if (leftBump && rightBump)
-        {
-            dashboard.log("Time to reverse");
-            dashboard.getBrain().unregisterFrontDistanceListener(this);
-            try {
-                dashboard.getBrain().driveDirect(0, 0);
-//                partTwo();
-            } catch (ConnectionLostException e) {
-                e.printStackTrace();
-            }
-        }
+        dashboard.log("front distance listener");
     }
 
     public void leftDistanceListener(int leftDistance)
@@ -66,8 +56,20 @@ public class DragRace extends Mission implements DistanceSensorListener, TurnEnd
     }
 
     @Override
-    public void distanceListener(int leftDistance, int rightDistance, boolean isBumpLeft, boolean isBumpRight) {
-        double offsetAngle = dashboard.getBrain().getAngleOffset(COURSE_WIDTH, leftDistance, rightDistance);
+    public void distanceListener(int leftDistance, int rightDistance, boolean leftBump, boolean rightBump) {
+        dashboard.log("checking if it's time to reverse");
+        //if(frontDistance < FINISH_DISTANCE)
+        if (leftBump && rightBump)
+        {
+            dashboard.log("Time to reverse");
+            dashboard.getBrain().unregisterDistanceListener(this);
+            try {
+                dashboard.getBrain().driveDirect(0, 0);
+//                partTwo();
+            } catch (ConnectionLostException e) {
+                e.printStackTrace();
+            }
+        }        double offsetAngle = dashboard.getBrain().getAngleOffset(COURSE_WIDTH, leftDistance, rightDistance);
         dashboard.log("Offset Angle = " + offsetAngle);
         if (!isAngleFixing) {
             if ((leftDistance > BUFFER && rightDistance > BUFFER)

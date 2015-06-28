@@ -223,4 +223,8 @@ public class Brain extends IRobotCreateAdapter {
         }
         loopActions.add(action);
     }
+
+    public void unregisterDistanceListener(DistanceSensorListener listener) {
+        if (sideDistanceListeners != null) sideDistanceListeners.remove(listener);
+    }
 }
