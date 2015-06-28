@@ -31,7 +31,7 @@ public class TurnThread {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                int[] curWS = new int[]{250, 250};
+                int[] curWS = new int[]{b.getRequestedRightVelocity(), b.getRequestedLeftVelocity()};
                 try {
                     int[] wheelSpeeds = b.computeWheelSpeed(radius, angle);
                     double speed = (wheelSpeeds[0] + wheelSpeeds[1]) / 2;
